@@ -1,13 +1,15 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/Components/ui/card';
+import { Button } from '@/Components/ui/button';
+import { Badge } from '@/Components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/Components/ui/dialog';
 import { useForm } from '@inertiajs/vue3';
+import StatCard from '@/Components/StatCard.vue';
 import { ref } from 'vue';
+import { BookOpen, Clock, CheckCircle2 } from 'lucide-vue-next';
 
 const props = defineProps({
     classes: Array,
@@ -50,23 +52,30 @@ const handleUpload = () => {
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <!-- Overview Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card>
-                        <CardHeader class="pb-2">
-                            <CardTitle class="text-sm font-medium text-gray-500">Kelas Diikuti</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div class="text-3xl font-bold">{{ classes.length }}</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader class="pb-2">
-                            <CardTitle class="text-sm font-medium text-gray-500">Tugas Aktif</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div class="text-3xl font-bold text-blue-600">{{ assignments.length }}</div>
-                        </CardContent>
-                    </Card>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <StatCard 
+                        title="Akademik" 
+                        :value="classes ? classes.length : 0" 
+                        subtitle="Kelas Dikuti" 
+                        :icon="BookOpen"
+                        variant="blue" 
+                    />
+
+                    <StatCard 
+                        title="Tugas" 
+                        :value="assignments ? assignments.length : 0" 
+                        subtitle="Belum Dikerjakan" 
+                        :icon="Clock"
+                        variant="orange" 
+                    />
+
+                    <StatCard 
+                        title="Tugas Selesai" 
+                        :value="0" 
+                        subtitle="Tugas Selesai" 
+                        :icon="CheckCircle2"
+                        variant="purple" 
+                    />
                 </div>
 
                 <!-- Active Assignments -->

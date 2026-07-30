@@ -15,7 +15,7 @@ const props = defineProps({
     data-slot="card-title"
     :class="
       cn(
-        'text-base leading-normal font-medium group-data-[size=sm]/card:text-sm cn-font-heading',
+        'text-lg leading-normal font-bold group-data-[size=sm]/card:text-sm cn-font-heading',
         props.class,
       )
     "

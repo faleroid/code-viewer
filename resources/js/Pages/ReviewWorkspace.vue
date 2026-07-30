@@ -6,9 +6,9 @@ import FileTreeViewer from '@/Components/FileTreeViewer.vue';
 import CodeViewer from '@/Components/CodeViewer.vue';
 import RubricGrader from '@/Components/RubricGrader.vue';
 import InlineCommentThread from '@/Components/InlineCommentThread.vue';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
+import { Card, CardContent } from '@/Components/ui/card';
+import { Badge } from '@/Components/ui/badge';
 
 const props = defineProps({
     submission: Object,

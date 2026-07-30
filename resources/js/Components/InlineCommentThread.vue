@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent } from '@/Components/ui/card';
 
 const props = defineProps({
     comments: {

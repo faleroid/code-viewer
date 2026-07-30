@@ -1,10 +1,12 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Badge } from '@/Components/ui/badge';
+import { Button } from '@/Components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import StatCard from '@/Components/StatCard.vue';
+import { BookOpen, Clock, CheckCircle2 } from 'lucide-vue-next';
 
 const props = defineProps({
     classes: Array,
@@ -23,23 +25,30 @@ const props = defineProps({
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <!-- Overview Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card>
-                        <CardHeader class="pb-2">
-                            <CardTitle class="text-sm font-medium text-gray-500">Kelas Aktif</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div class="text-3xl font-bold">{{ classes.length }}</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader class="pb-2">
-                            <CardTitle class="text-sm font-medium text-gray-500">Tugas Menunggu Review</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div class="text-3xl font-bold text-orange-600">{{ pendingSubmissions.length }}</div>
-                        </CardContent>
-                    </Card>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <StatCard 
+                        title="Akademik" 
+                        :value="classes ? classes.length : 0" 
+                        subtitle="Kelas Aktif" 
+                        :icon="BookOpen"
+                        variant="blue" 
+                    />
+
+                    <StatCard 
+                        title="Penilaian" 
+                        :value="pendingSubmissions ? pendingSubmissions.length : 0" 
+                        subtitle="Menunggu Review" 
+                        :icon="Clock"
+                        variant="orange" 
+                    />
+
+                    <StatCard 
+                        title="Riwayat" 
+                        :value="0" 
+                        subtitle="Tugas Dinilai" 
+                        :icon="CheckCircle2"
+                        variant="green" 
+                    />
                 </div>
 
                 <!-- Pending Submissions -->

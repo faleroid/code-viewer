@@ -4,6 +4,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
+import Title from '@/Components/Title.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 
@@ -54,15 +55,12 @@ const deleteCourse = (course) => {
     <Head title="Mata Kuliah" />
 
     <AuthenticatedLayout>
-        <template #header>
-            <div class="flex items-center justify-between">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Manajemen Mata Kuliah</h2>
-                <Button @click="openCreate">+ Tambah Mata Kuliah</Button>
-            </div>
-        </template>
-
-        <div class="py-12">
-            <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+        <div class="px-12 pb-12">
+            <div class="max-w-5xl mx-auto space-y-6">
+                <div class="flex justify-between">
+                    <Title title="Manajemen Mata Kuliah" subtitle="Rangkuman dan Informasi Praktikum" />
+                    <Button @click="openCreate">+ Tambah Mata Kuliah</Button>
+                </div>
                 <Card>
                     <CardContent class="p-0">
                         <Table>

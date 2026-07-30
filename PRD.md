@@ -10,7 +10,7 @@ PRODUCT REQUIREMENTS DOCUMENT (PRD)
 
 **Status:** Draft - menunggu review & persetujuan
 
-**Target Stack:** Laravel + Inertia.js (Vue/React) + MySQL/PostgreSQL
+**Target Stack:** Laravel + Inertia.js (React) + PostgreSQL
 
 # 1\. Latar Belakang & Masalah
 

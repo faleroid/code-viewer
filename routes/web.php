@@ -33,7 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->whereIn('status', ['pending', 'reviewing'])
                 ->get();
 
-            return Inertia::render('DashboardAslab', [
+            return Inertia::render('Admin/Dashboard', [
                 'classes' => $classes,
                 'pendingSubmissions' => $submissions,
             ]);
@@ -49,7 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->with(['submissions' => fn($q) => $q->where('user_id', $user->id)->with('grade')])
         ->get();
 
-        return Inertia::render('DashboardMahasiswa', [
+        return Inertia::render('Student/Dashboard', [
             'classes' => $myClasses,
             'assignments' => $assignments,
         ]);
@@ -78,6 +78,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/assignments/{assignment}', [AssignmentController::class, 'destroy'])->name('assignments.destroy');
 
         // Submission Review & Grading
+        Route::get('/submissions', function () {
+            $submissions = Submission::with(['user', 'assignment'])
+                ->whereIn('status', ['pending', 'reviewing'])
+                ->get();
+            return Inertia::render('Admin/Submissions/Index', [
+                'pendingSubmissions' => $submissions,
+            ]);
+        })->name('submissions.index');
         Route::get('/submissions/{submission}/review', [SubmissionController::class, 'review'])->name('submissions.review');
         Route::post('/submissions/{submission}/grade', [SubmissionController::class, 'grade'])->name('submissions.grade');
 
@@ -88,8 +96,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ──────────────────────────────────────────
     // Mahasiswa Routes
     // ──────────────────────────────────────────
-    Route::middleware('role:mahasiswa')->group(function () {
+    Route::middleware('role:mahasiswa,aslab,admin')->group(function () {
         Route::post('/assignments/{assignment}/submit', [SubmissionController::class, 'store'])->name('submissions.store');
+
+        Route::get('/assignments', function () {
+            $user = request()->user();
+            $myClasses = LabClass::whereHas('students', fn($q) => $q->where('user_id', $user->id))->with('course')->get();
+            $assignments = Assignment::whereIn('module_id', function ($q) use ($myClasses) {
+                $q->select('id')->from('modules')->whereIn('lab_class_id', $myClasses->pluck('id'));
+            })->with(['submissions' => fn($q) => $q->where('user_id', $user->id)->with('grade')])->get();
+
+            return Inertia::render('Student/Assignments/Index', [
+                'assignments' => $assignments,
+                'classes' => $myClasses,
+            ]);
+        })->name('assignments.index');
+
+        Route::get('/assignments/history', function () {
+            return Inertia::render('Student/Assignments/History');
+        })->name('assignments.history');
+
+        Route::get('/assignments/grades', function () {
+            return Inertia::render('Student/Assignments/Grades');
+        })->name('assignments.grades');
+
+        Route::get('/teams', function () {
+            return Inertia::render('Student/Teams/Index');
+        })->name('teams.index');
+
+        Route::get('/teams/my-team', function () {
+            return Inertia::render('Student/Teams/MyTeam');
+        })->name('teams.my-team');
     });
 
     // ──────────────────────────────────────────

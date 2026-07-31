@@ -6,6 +6,8 @@ import { Button } from '@/Components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Badge } from '@/Components/ui/badge';
+import { Sidebar } from '@/Components/Sidebar';
+import { getAdminSidebarItems } from '@/Components/Sidebar/adminNavigation';
 
 interface LabClass {
     id: number;
@@ -97,8 +99,27 @@ export default function CoursesShow({
         >
             <Head title={course.name} />
 
-            <div className="py-12">
-                <div className="max-w-6xl mx-auto sm:px-6 lg:px-8">
+            <div className="flex min-h-[calc(100vh-4rem)] bg-slate-50/50">
+                {/* Sidebar Admin */}
+                <div className="w-64 shrink-0 hidden lg:block border-r border-slate-200/80 bg-white">
+                    <Sidebar
+                        items={getAdminSidebarItems()}
+                        activeId="buat-tugas"
+                        className="w-full h-full border-none rounded-none"
+                    />
+                </div>
+
+                {/* Sidebar Mobile View */}
+                <div className="block lg:hidden w-full px-4 pt-4">
+                    <Sidebar
+                        items={getAdminSidebarItems()}
+                        activeId="buat-tugas"
+                        className="w-full bg-white border border-slate-200/80 rounded-2xl p-3"
+                    />
+                </div>
+
+                {/* Main Content Area */}
+                <div className="flex-1 min-w-0 p-6 md:p-8 space-y-6 max-w-7xl">
                     <Card>
                         <CardContent className="p-0">
                             <Table>
@@ -115,7 +136,7 @@ export default function CoursesShow({
                                     {course.lab_classes?.map((cls) => (
                                         <TableRow key={cls.id}>
                                             <TableCell>
-                                                <Link href={route('classes.show', cls.id)} className="text-blue-600 hover:underline font-medium">
+                                                <Link href={route('classes.show', cls.id)} className="text-sky-600 hover:underline font-medium">
                                                     {cls.name}
                                                 </Link>
                                             </TableCell>
@@ -158,7 +179,7 @@ export default function CoursesShow({
                                 onChange={(e) => setData('name', e.target.value)}
                                 type="text"
                                 placeholder="Kelas A"
-                                className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                             />
                             {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
                         </div>
@@ -169,7 +190,7 @@ export default function CoursesShow({
                                 onChange={(e) => setData('semester', e.target.value)}
                                 type="text"
                                 placeholder="Ganjil 2024/2025"
-                                className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                             />
                             {errors.semester && <p className="text-sm text-red-500 mt-1">{errors.semester}</p>}
                         </div>
@@ -178,7 +199,7 @@ export default function CoursesShow({
                             <select
                                 value={data.aslab_id}
                                 onChange={(e) => setData('aslab_id', e.target.value)}
-                                className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                                className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 bg-white"
                                 disabled={editingClass !== null}
                             >
                                 <option value="" disabled>Pilih Asisten Laboratorium</option>

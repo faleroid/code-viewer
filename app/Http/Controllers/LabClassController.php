@@ -14,7 +14,7 @@ class LabClassController extends Controller
     {
         $classes = LabClass::with(['course', 'aslab'])->withCount('students')->get();
 
-        return Inertia::render('Classes/Index', [
+        return Inertia::render('Admin/Classes/Index', [
             'classes' => $classes,
         ]);
     }
@@ -41,7 +41,7 @@ class LabClassController extends Controller
             ->whereNotIn('id', $class->students->pluck('id'))
             ->get(['id', 'name', 'nim', 'email']);
 
-        return Inertia::render('Classes/Show', [
+        return Inertia::render('Admin/Classes/Show', [
             'labClass' => $class,
             'availableStudents' => $availableStudents,
         ]);

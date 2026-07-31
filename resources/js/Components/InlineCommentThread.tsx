@@ -33,11 +33,11 @@ export default function InlineCommentThread({
     };
 
     return (
-        <Card className="w-80 shadow-lg border-blue-200">
-            <div className="bg-blue-50 px-3 py-2 border-b border-blue-100 flex justify-between items-center text-sm font-semibold text-blue-800 rounded-t-lg">
+        <Card className="w-80 shadow-lg border-sky-200">
+            <div className="bg-sky-50 px-3 py-2 border-b border-sky-100 flex justify-between items-center text-sm font-semibold text-sky-800 rounded-t-lg">
                 <span>Line {lineNumber}</span>
                 {onClose && (
-                    <button onClick={onClose} className="text-blue-500 hover:text-blue-700">&times;</button>
+                    <button onClick={onClose} className="text-sky-500 hover:text-sky-700">&times;</button>
                 )}
             </div>
             
@@ -68,7 +68,7 @@ export default function InlineCommentThread({
                             value={replyText} 
                             onChange={(e) => setReplyText(e.target.value)}
                             placeholder="Write a comment..." 
-                            className="w-full text-sm p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 mb-2 min-h-[60px]"
+                            className="w-full text-sm p-2 border border-gray-300 rounded focus:ring-sky-500 focus:border-sky-500 mb-2 min-h-[60px]"
                         />
                         <div className="flex justify-end gap-2">
                             {onClose && (

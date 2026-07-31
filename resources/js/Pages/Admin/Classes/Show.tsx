@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Badge } from '@/Components/ui/badge';
+import { Sidebar } from '@/Components/Sidebar';
+import { getAdminSidebarItems } from '@/Components/Sidebar/adminNavigation';
 
 interface Student {
     id: number;
@@ -159,8 +161,28 @@ export default function ClassesShow({
         >
             <Head title={labClass.name} />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex min-h-[calc(100vh-4rem)] bg-slate-50/50">
+                {/* Sidebar Admin */}
+                <div className="w-64 shrink-0 hidden lg:block border-r border-slate-200/80 bg-white">
+                    <Sidebar
+                        items={getAdminSidebarItems()}
+                        activeId="buat-tugas"
+                        className="w-full h-full border-none rounded-none"
+                    />
+                </div>
+
+                {/* Sidebar Mobile View */}
+                <div className="block lg:hidden w-full px-4 pt-4">
+                    <Sidebar
+                        items={getAdminSidebarItems()}
+                        activeId="buat-tugas"
+                        className="w-full bg-white border border-slate-200/80 rounded-2xl p-3"
+                    />
+                </div>
+
+                {/* Main Content Area */}
+                <div className="flex-1 min-w-0 p-6 md:p-8 space-y-6 max-w-7xl">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Main Content: Modules & Assignments */}
                     <div className="md:col-span-2 space-y-6">
                         <div className="flex justify-between items-center">
@@ -185,7 +207,7 @@ export default function ClassesShow({
                                             {mod.assignments.map((assign) => (
                                                 <div key={assign.id} className="flex justify-between items-center p-3 border rounded-md hover:bg-gray-50 transition">
                                                     <div>
-                                                        <Link href={route('assignments.show', assign.id)} className="font-medium text-blue-600 hover:underline block">
+                                                        <Link href={route('assignments.show', assign.id)} className="font-medium text-sky-600 hover:underline block">
                                                             {assign.title}
                                                         </Link>
                                                         <span className="text-xs text-gray-500">Tenggat: {new Date(assign.deadline).toLocaleString()} • Max: {assign.max_score}</span>
@@ -369,7 +391,7 @@ export default function ClassesShow({
                                         id={`s_${student.id}`}
                                         checked={enrollForm.data.student_ids.includes(student.id)}
                                         onChange={() => toggleStudentSelection(student.id)}
-                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        className="rounded border-gray-300 text-sky-600 focus:ring-sky-500"
                                     />
                                     <label htmlFor={`s_${student.id}`} className="text-sm font-medium leading-none cursor-pointer">
                                         {student.nim} - {student.name}

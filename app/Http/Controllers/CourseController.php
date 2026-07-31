@@ -12,7 +12,7 @@ class CourseController extends Controller
     {
         $courses = Course::withCount('labClasses')->orderBy('name')->get();
 
-        return Inertia::render('Courses/Index', [
+        return Inertia::render('Admin/Courses/Index', [
             'courses' => $courses,
         ]);
     }
@@ -56,7 +56,7 @@ class CourseController extends Controller
 
         $aslabs = \App\Models\User::whereIn('role', ['aslab', 'admin'])->get(['id', 'name', 'email']);
 
-        return Inertia::render('Courses/Show', [
+        return Inertia::render('Admin/Courses/Show', [
             'course' => $course,
             'aslabs' => $aslabs,
         ]);

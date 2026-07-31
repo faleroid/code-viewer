@@ -39,7 +39,7 @@ class AssignmentController extends Controller
             }
         ]);
 
-        return Inertia::render('Assignments/Show', [
+        return Inertia::render('Student/Assignments/Show', [
             'assignment' => $assignment,
         ]);
     }

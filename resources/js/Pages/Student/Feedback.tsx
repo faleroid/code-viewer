@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
+import { Clock } from 'lucide-react';
 
 interface StudentFeedbackProps {
     submission: any;
@@ -28,7 +29,7 @@ export default function StudentFeedback({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-2xl font-bold">
-                                    Total Nilai: <span className="text-blue-600">{grade.score}</span> / 100
+                                    Total Nilai: <span className="text-sky-600">{grade.score}</span> / 100
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -53,19 +54,7 @@ export default function StudentFeedback({
                     ) : (
                         <Card>
                             <CardContent className="py-10 text-center text-gray-500 flex flex-col items-center">
-                                <svg
-                                    className="w-16 h-16 text-gray-300 mb-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
-                                </svg>
+                                <Clock className="w-16 h-16 text-gray-300 mb-4" />
                                 <h3 className="text-lg font-medium text-gray-900 mb-1">
                                     Tugas Belum Dinilai
                                 </h3>
@@ -75,12 +64,6 @@ export default function StudentFeedback({
                             </CardContent>
                         </Card>
                     )}
-
-                    <div className="flex justify-start">
-                        <Link href={route('dashboard')}>
-                            <Button variant="outline">Kembali ke Dashboard</Button>
-                        </Link>
-                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>

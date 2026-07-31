@@ -257,7 +257,7 @@ export default function ReviewWorkspace({
                                     ) : (
                                         Object.entries(allComments).map(([fileId, fileComments]) => (
                                             <div key={fileId} className="mb-4">
-                                                <div className="text-sm font-semibold text-blue-600 mb-2">File #{fileId}</div>
+                                                <div className="text-sm font-semibold text-sky-600 mb-2">File #{fileId}</div>
                                                 {fileComments.map((c, idx) => (
                                                     <div key={idx} className="text-sm mb-2 p-2 bg-gray-50 rounded border border-gray-100">
                                                         <div className="flex items-center justify-between text-xs text-gray-500 mb-1">

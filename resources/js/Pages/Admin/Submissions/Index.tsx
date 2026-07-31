@@ -2,28 +2,27 @@ import React, { useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import StatCard from '@/Components/StatCard';
 import Title from '@/Components/Title';
 import DataTable from '@/Components/DataTable';
 import { Button } from '@/Components/ui/button';
-import { BookOpen, Clock, CheckCircle2, Code2 } from 'lucide-react';
+import { Code2 } from 'lucide-react';
+import { Sidebar } from '@/Components/Sidebar';
+import { getAdminSidebarItems } from '@/Components/Sidebar/adminNavigation';
 
-interface DashboardAslabProps {
-    classes?: any[];
+interface SubmissionsIndexProps {
     pendingSubmissions?: any[];
 }
 
-export default function DashboardAslab({
-    classes = [],
+export default function SubmissionsIndex({
     pendingSubmissions = [],
-}: DashboardAslabProps) {
+}: SubmissionsIndexProps) {
     const columns = useMemo<ColumnDef<any>[]>(() => {
         const bgColors = [
             'bg-amber-800 text-white',
             'bg-teal-700 text-white',
             'bg-stone-500 text-white',
             'bg-emerald-600 text-white',
-            'bg-blue-600 text-white',
+            'bg-sky-600 text-white',
         ];
 
         return [
@@ -108,7 +107,7 @@ export default function DashboardAslab({
                         );
                     }
                     return (
-                        <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200 tracking-wide uppercase">
+                        <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-sky-100 text-sky-700 border border-sky-200 tracking-wide uppercase">
                             MENUNGGU
                         </span>
                     );
@@ -167,38 +166,30 @@ export default function DashboardAslab({
 
     return (
         <AuthenticatedLayout>
-            <Head title="Dashboard Aslab" />
+            <Head title="Review Submissions" />
 
-            <div className="px-6 md:px-12 py-6 pb-12">
-                <Title title="Dashboard Asisten" subtitle="Rangkuman dan Informasi Praktikum" />
+            <div className="flex min-h-[calc(100vh-4rem)] bg-slate-50/50">
+                {/* Sidebar Admin */}
+                <div className="w-64 shrink-0 hidden lg:block border-r border-slate-200/80 bg-white">
+                    <Sidebar
+                        items={getAdminSidebarItems()}
+                        activeId="review"
+                        className="w-full h-full border-none rounded-none"
+                    />
+                </div>
 
-                <div className="max-w-7xl mx-auto space-y-6">
-                    {/* Overview Stats */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                        <StatCard 
-                            title="Akademik" 
-                            value={classes ? classes.length : 0} 
-                            subtitle="Kelas Aktif" 
-                            icon={BookOpen}
-                            variant="blue" 
-                        />
+                {/* Sidebar Mobile View */}
+                <div className="block lg:hidden w-full px-4 pt-4">
+                    <Sidebar
+                        items={getAdminSidebarItems()}
+                        activeId="review"
+                        className="w-full bg-white border border-slate-200/80 rounded-2xl p-3"
+                    />
+                </div>
 
-                        <StatCard 
-                            title="Penilaian" 
-                            value={pendingSubmissions ? pendingSubmissions.length : 0} 
-                            subtitle="Menunggu Review" 
-                            icon={Clock}
-                            variant="orange" 
-                        />
-
-                        <StatCard 
-                            title="Riwayat" 
-                            value={0} 
-                            subtitle="Tugas Dinilai" 
-                            icon={CheckCircle2}
-                            variant="green" 
-                        />
-                    </div>
+                {/* Main Content Area */}
+                <div className="flex-1 min-w-0 p-6 md:p-8 space-y-6 max-w-7xl">
+                    <Title title="Review Submission" subtitle="Antrean Penilaian dan Evaluasi Tugas Mahasiswa" />
 
                     {/* DataTable Antrean Penilaian */}
                     <DataTable 

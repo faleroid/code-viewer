@@ -49,7 +49,7 @@ export default function RubricGrader({
             <CardHeader className="pb-3 border-b">
                 <CardTitle className="text-lg flex justify-between items-center">
                     <span>Penilaian Rubrik</span>
-                    <Badge variant="outline" className="text-blue-700 bg-blue-50 border-blue-200">
+                    <Badge variant="outline" className="text-sky-700 bg-sky-50 border-sky-200">
                         Total: {totalScore} / {maxTotalScore}
                     </Badge>
                 </CardTitle>
@@ -68,7 +68,7 @@ export default function RubricGrader({
                                     value={comp.current_score} 
                                     onChange={(e) => updateScore(index, e.target.value)}
                                     disabled={readonly}
-                                    className="w-20 px-2 py-1 text-sm border rounded focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                                    className="w-20 px-2 py-1 text-sm border rounded focus:ring-sky-500 focus:border-sky-500 disabled:bg-gray-100"
                                     min="0"
                                     max={comp.max_score}
                                 />
@@ -95,7 +95,7 @@ export default function RubricGrader({
                         onChange={(e) => onUpdateGeneralFeedback && onUpdateGeneralFeedback(e.target.value)}
                         disabled={readonly}
                         placeholder="Write overall feedback here..."
-                        className="w-full text-sm p-3 border rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 min-h-[100px]"
+                        className="w-full text-sm p-3 border rounded-md focus:ring-sky-500 focus:border-sky-500 disabled:bg-gray-100 min-h-[100px]"
                     />
                 </div>
             </CardContent>

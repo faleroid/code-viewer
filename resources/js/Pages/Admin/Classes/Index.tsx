@@ -21,7 +21,7 @@ export default function ClassesIndex({ classes = [] }: { classes?: ClassItem[] }
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">Daftar Semua Kelas</h2>
             }
         >
-            <Head title="Daftar Kelas" />
+            <Head title="Daftar Kelas - Admin" />
 
             <div className="py-12">
                 <div className="max-w-6xl mx-auto sm:px-6 lg:px-8">
@@ -41,12 +41,12 @@ export default function ClassesIndex({ classes = [] }: { classes?: ClassItem[] }
                                     {classes.map((cls) => (
                                         <TableRow key={cls.id}>
                                             <TableCell>
-                                                <Link href={route('courses.show', cls.course_id)} className="text-blue-600 hover:underline">
+                                                <Link href={route('courses.show', cls.course_id)} className="text-sky-600 hover:underline">
                                                     {cls.course?.name}
                                                 </Link>
                                             </TableCell>
                                             <TableCell>
-                                                <Link href={route('classes.show', cls.id)} className="text-blue-600 hover:underline font-medium">
+                                                <Link href={route('classes.show', cls.id)} className="text-sky-600 hover:underline font-medium">
                                                     {cls.name}
                                                 </Link>
                                             </TableCell>

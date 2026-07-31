@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, File, Folder } from 'lucide-react';
+import { ChevronRight, ChevronDown, File, Folder, FolderOpen } from 'lucide-react';
 
 export interface FileNode {
     name: string;
@@ -23,14 +23,10 @@ export default function FileTreeViewer({
     const isFolder = Boolean(node.children && node.children.length > 0);
     const isSelected = selectedFilePath === node.path;
 
-    const toggle = () => {
+    const handleClick = () => {
         if (isFolder) {
             setIsOpen(!isOpen);
-        }
-    };
-
-    const selectFile = () => {
-        if (!isFolder && onSelect) {
+        } else if (onSelect) {
             onSelect(node.path);
         }
     };
@@ -39,9 +35,9 @@ export default function FileTreeViewer({
         <div className="font-sans text-sm">
             <div 
                 className={`flex items-center py-1 px-2 cursor-pointer hover:bg-gray-100 rounded group ${
-                    isSelected && !isFolder ? 'bg-blue-50 text-blue-700' : ''
+                    isSelected && !isFolder ? 'bg-sky-50 text-sky-700' : ''
                 }`}
-                onClick={isFolder ? toggle : selectFile}
+                onClick={handleClick}
             >
                 <div className="mr-1 w-4 h-4 flex items-center justify-center">
                     {isFolder && (
@@ -50,9 +46,13 @@ export default function FileTreeViewer({
                 </div>
                 
                 {isFolder ? (
-                    <Folder className="w-4 h-4 mr-2 text-yellow-500" />
+                    isOpen ? (
+                        <FolderOpen className="w-4 h-4 mr-2 text-amber-500" />
+                    ) : (
+                        <Folder className="w-4 h-4 mr-2 text-amber-500" />
+                    )
                 ) : (
-                    <File className={`w-4 h-4 mr-2 text-gray-500 ${isSelected ? 'text-blue-500' : ''}`} />
+                    <File className={`w-4 h-4 mr-2 text-gray-500 ${isSelected ? 'text-sky-500' : ''}`} />
                 )}
                 
                 <span className="truncate">{node.name}</span>

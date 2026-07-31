@@ -70,7 +70,7 @@ class SubmissionController extends Controller
         // Map file IDs for the frontend
         $fileIdMap = $files->pluck('id', 'file_path')->toArray();
 
-        return Inertia::render('ReviewWorkspace', [
+        return Inertia::render('Admin/ReviewWorkspace', [
             'submission' => [
                 'id' => $submission->id,
                 'title' => $submission->assignment->title,
@@ -124,7 +124,7 @@ class SubmissionController extends Controller
             ->with('replies.user:id,name,role')
             ->get();
 
-        return Inertia::render('StudentFeedback', [
+        return Inertia::render('Student/Feedback', [
             'submission' => $submission,
             'grade' => $grade,
             'inlineComments' => $comments,

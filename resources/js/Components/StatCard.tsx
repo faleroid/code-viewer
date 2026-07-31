@@ -5,13 +5,14 @@ export interface StatCardProps {
     value: string | number;
     subtitle?: string;
     icon?: React.ElementType;
-    variant?: 'blue' | 'orange' | 'purple' | 'green' | 'red' | 'gray';
+    variant?: 'sky' | 'blue' | 'orange' | 'purple' | 'green' | 'red' | 'gray';
     iconBorderClass?: string;
     iconSlot?: React.ReactNode;
 }
 
 const variantStyles = {
-    blue: 'border-blue-500 bg-blue-50/40 text-blue-600',
+    sky: 'border-sky-500 bg-sky-50/40 text-sky-600',
+    blue: 'border-sky-500 bg-sky-50/40 text-sky-600',
     orange: 'border-orange-400 bg-orange-50/40 text-orange-500',
     purple: 'border-purple-500 bg-purple-50/40 text-purple-600',
     green: 'border-emerald-500 bg-emerald-50/40 text-emerald-600',
@@ -24,11 +25,11 @@ export default function StatCard({
     value,
     subtitle,
     icon: Icon,
-    variant = 'blue',
+    variant = 'sky',
     iconBorderClass,
     iconSlot
 }: StatCardProps) {
-    const badgeClasses = iconBorderClass || variantStyles[variant] || variantStyles.blue;
+    const badgeClasses = iconBorderClass || variantStyles[variant] || variantStyles.sky;
 
     return (
         <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">

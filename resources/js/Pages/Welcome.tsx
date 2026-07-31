@@ -36,7 +36,7 @@ export default function Welcome({
                     <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
                         <header className="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
                             <div className="flex lg:col-start-2 lg:justify-center">
-                                <span className="text-2xl font-bold text-blue-600">LabCode Viewer</span>
+                                <span className="text-2xl font-bold text-sky-600">LabCode Viewer</span>
                             </div>
                             <nav className="-mx-3 flex flex-1 justify-end">
                                 {auth?.user ? (
@@ -78,7 +78,7 @@ export default function Welcome({
                                 <div className="pt-4 flex justify-center gap-4">
                                     <Link
                                         href={route('login')}
-                                        className="px-6 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+                                        className="px-6 py-2.5 rounded-lg bg-sky-600 text-white font-medium hover:bg-sky-700 transition"
                                     >
                                         Masuk ke Dashboard
                                     </Link>

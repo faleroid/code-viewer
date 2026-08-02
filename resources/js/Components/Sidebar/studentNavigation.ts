@@ -1,4 +1,4 @@
-import { LayoutGrid, ClipboardList, Users } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, FileCode2, History, Award } from 'lucide-react';
 import { SidebarNavItem } from './types';
 
 export const getStudentSidebarItems = (): SidebarNavItem[] => {
@@ -14,28 +14,18 @@ export const getStudentSidebarItems = (): SidebarNavItem[] => {
         {
             id: 'dashboard',
             label: 'DASHBOARD',
-            icon: LayoutGrid,
+            icon: LayoutDashboard,
             href: getHref('dashboard', '/dashboard'),
         },
         {
             id: 'tugas',
             label: 'TUGAS',
-            icon: ClipboardList,
+            icon: FolderKanban,
             defaultOpen: true,
             children: [
-                { id: 'daftar-tugas', label: 'Daftar Tugas', href: getHref('assignments.index', '/assignments') },
-                { id: 'riwayat-tugas', label: 'Riwayat', href: getHref('assignments.history', '/assignments/history') },
-                { id: 'nilai-tugas', label: 'Nilai', href: getHref('assignments.grades', '/assignments/grades') },
-            ],
-        },
-        {
-            id: 'tim',
-            label: 'TIM',
-            icon: Users,
-            defaultOpen: true,
-            children: [
-                { id: 'daftar-tim', label: 'Daftar Tim', href: getHref('teams.index', '/teams') },
-                { id: 'tim-saya', label: 'Tim Saya', href: getHref('teams.my-team', '/teams/my-team') },
+                { id: 'daftar-tugas', label: 'Daftar Tugas', icon: FileCode2, href: getHref('assignments.index', '/assignments') },
+                { id: 'riwayat-tugas', label: 'Riwayat Submission', icon: History, href: getHref('assignments.history', '/assignments/history') },
+                { id: 'nilai-tugas', label: 'Nilai & Feedback', icon: Award, href: getHref('assignments.grades', '/assignments/grades') },
             ],
         },
     ];

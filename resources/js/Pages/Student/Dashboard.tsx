@@ -6,15 +6,18 @@ import Title from '@/Components/Title';
 import { BookOpen, Clock, CheckCircle2, ArrowRight, ClipboardList } from 'lucide-react';
 import { Sidebar } from '@/Components/Sidebar';
 import { getStudentSidebarItems } from '@/Components/Sidebar/studentNavigation';
+import { Highlighter } from "@/Components/ui/highlighter"
 
 interface StudentDashboardProps {
     classes?: any[];
     assignments?: any[];
+    completedCount?: number;
 }
 
 export default function StudentDashboard({
     classes = [],
     assignments = [],
+    completedCount = 0,
 }: StudentDashboardProps) {
     return (
         <AuthenticatedLayout>
@@ -57,17 +60,17 @@ export default function StudentDashboard({
                         />
 
                         <StatCard
-                            title="Tugas"
+                            title="Tugas Aktif"
                             value={assignments ? assignments.length : 0}
-                            subtitle="Belum Dikerjakan"
+                            subtitle="Tugas Praktikum"
                             icon={Clock}
                             variant="orange"
                         />
 
                         <StatCard
                             title="Tugas Selesai"
-                            value={0}
-                            subtitle="Tugas Selesai"
+                            value={completedCount}
+                            subtitle="Sudah Dikumpulkan"
                             icon={CheckCircle2}
                             variant="purple"
                         />

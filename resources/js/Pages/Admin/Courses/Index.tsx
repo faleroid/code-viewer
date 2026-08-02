@@ -9,6 +9,14 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Sidebar } from '@/Components/Sidebar';
 import { getAdminSidebarItems } from '@/Components/Sidebar/adminNavigation';
 import { Plus } from 'lucide-react';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/Components/ui/breadcrumb"
 
 interface Course {
     id: number;
@@ -75,7 +83,7 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
                 </div>
             ),
             cell: ({ row }) => (
-                <span className="font-mono font-medium text-slate-800">
+                <span className="font-medium text-slate-800">
                     {row.original.code}
                 </span>
             ),
@@ -87,7 +95,7 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
                     className="flex items-center gap-1 cursor-pointer select-none"
                     onClick={() => column.toggleSorting()}
                 >
-                    Nama Mata Kuliah
+                    Mata Kuliah
                     {column.getIsSorted() ? (column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
                 </div>
             ),
@@ -119,15 +127,15 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
         },
         {
             id: 'actions',
-            header: () => <div className="text-right">Aksi</div>,
+            header: () => <div></div>,
             cell: ({ row }) => {
                 const course = row.original;
                 return (
-                    <div className="text-right space-x-2">
+                    <div className="flex space-x-2 justify-center">
                         <Button
                             size="sm"
                             variant="outline"
-                            className="h-8 px-3 text-xs border-slate-200 hover:bg-slate-50"
+                            className="h-8 text-xs border-slate-200 hover:bg-slate-50"
                             onClick={() => openEdit(course)}
                         >
                             Edit
@@ -135,7 +143,7 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
                         <Button
                             size="sm"
                             variant="outline"
-                            className="h-8 px-3 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                            className="h-8 text-xs text-red-600 border-red-200 hover:bg-red-50"
                             onClick={() => deleteCourse(course)}
                         >
                             Hapus
@@ -155,7 +163,7 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
                 <div className="w-64 shrink-0 hidden lg:block border-r border-slate-200/80 bg-white">
                     <Sidebar
                         items={getAdminSidebarItems()}
-                        activeId="buat-tugas"
+                        activeId="mata-kuliah"
                         className="w-full h-full border-none rounded-none"
                     />
                 </div>
@@ -164,15 +172,29 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
                 <div className="block lg:hidden w-full px-4 pt-4">
                     <Sidebar
                         items={getAdminSidebarItems()}
-                        activeId="buat-tugas"
+                        activeId="mata-kuliah"
                         className="w-full bg-white border border-slate-200/80 rounded-2xl p-3"
                     />
                 </div>
 
                 {/* Main Content Area */}
                 <div className="flex-1 min-w-0 p-6 md:p-8 space-y-6 max-w-7xl">
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+
+                            <BreadcrumbItem>
+                                <BreadcrumbPage className="font-medium text-sky-600">Mata Kuliah</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <Title title="Manajemen Mata Kuliah" subtitle="Kelola Mata Kuliah & Tugas Praktikum" />
+
+
                         <Button onClick={openCreate} className="bg-sky-600 hover:bg-sky-700 text-white gap-1.5 shadow-sm self-start sm:self-auto">
                             <Plus className="w-4 h-4" />
                             <span>Tambah Mata Kuliah</span>

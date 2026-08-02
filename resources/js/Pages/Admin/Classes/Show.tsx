@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from '@/Components/ui/badge';
 import { Sidebar } from '@/Components/Sidebar';
 import { getAdminSidebarItems } from '@/Components/Sidebar/adminNavigation';
+import { ChevronDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem } from '@/Components/ui/dropdown-menu';
 
 interface Student {
     id: number;
@@ -156,6 +158,13 @@ export default function ClassesShow({
                             <Badge variant="outline" className="ml-2 align-middle">{labClass.semester}</Badge>
                         </h2>
                     </div>
+                    <a
+                        href={route('classes.export-grades', labClass.id)}
+                        download
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
+                    >
+                        Ekspor Nilai (CSV)
+                    </a>
                 </div>
             }
         >
@@ -166,7 +175,7 @@ export default function ClassesShow({
                 <div className="w-64 shrink-0 hidden lg:block border-r border-slate-200/80 bg-white">
                     <Sidebar
                         items={getAdminSidebarItems()}
-                        activeId="buat-tugas"
+                        activeId="daftar-kelas"
                         className="w-full h-full border-none rounded-none"
                     />
                 </div>
@@ -175,7 +184,7 @@ export default function ClassesShow({
                 <div className="block lg:hidden w-full px-4 pt-4">
                     <Sidebar
                         items={getAdminSidebarItems()}
-                        activeId="buat-tugas"
+                        activeId="daftar-kelas"
                         className="w-full bg-white border border-slate-200/80 rounded-2xl p-3"
                     />
                 </div>
@@ -271,6 +280,7 @@ export default function ClassesShow({
                     </div>
                 </div>
             </div>
+        </div>
 
             {/* Module Dialog */}
             <Dialog open={showModuleDialog} onOpenChange={setShowModuleDialog}>
@@ -357,15 +367,44 @@ export default function ClassesShow({
                         </div>
                         <div>
                             <label className="text-sm font-medium block mb-1">Metode Penilaian</label>
-                            <select
-                                value={assignmentForm.data.grading_method}
-                                onChange={(e) => assignmentForm.setData('grading_method', e.target.value)}
-                                className="w-full rounded-md border px-3 py-2 text-sm bg-white"
-                                required
-                            >
-                                <option value="score">Skor Langsung (Score)</option>
-                                <option value="rubric">Rubrik (Rubric)</option>
-                            </select>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger
+                                    render={
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="w-full justify-between font-normal border-slate-200 text-left bg-white"
+                                        >
+                                            <span className="text-slate-800 font-medium">
+                                                {assignmentForm.data.grading_method === 'rubric' ? 'Rubrik (Rubric)' : 'Skor Langsung (Score)'}
+                                            </span>
+                                            <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+                                        </Button>
+                                    }
+                                />
+                                <DropdownMenuContent className="w-[var(--anchor-width)] max-h-60 overflow-y-auto bg-white border border-slate-200 shadow-md p-1 z-[60] pointer-events-auto">
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuItem
+                                            onClick={() => assignmentForm.setData('grading_method', 'score')}
+                                            className={`cursor-pointer px-3 py-2 text-sm rounded-md transition-colors ${assignmentForm.data.grading_method === 'score'
+                                                    ? 'bg-sky-50 text-sky-700 font-medium'
+                                                    : 'hover:bg-slate-100 text-slate-700'
+                                                }`}
+                                        >
+                                            Skor Langsung (Score)
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={() => assignmentForm.setData('grading_method', 'rubric')}
+                                            className={`cursor-pointer px-3 py-2 text-sm rounded-md transition-colors ${assignmentForm.data.grading_method === 'rubric'
+                                                    ? 'bg-sky-50 text-sky-700 font-medium'
+                                                    : 'hover:bg-slate-100 text-slate-700'
+                                                }`}
+                                        >
+                                            Rubrik (Rubric)
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setShowAssignmentDialog(false)}>Batal</Button>

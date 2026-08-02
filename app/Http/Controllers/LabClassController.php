@@ -13,9 +13,13 @@ class LabClassController extends Controller
     public function index()
     {
         $classes = LabClass::with(['course', 'aslab'])->withCount('students')->get();
+        $courses = Course::orderBy('name')->get(['id', 'name', 'code']);
+        $aslabs = User::whereIn('role', ['aslab', 'admin'])->orderBy('name')->get(['id', 'name', 'email']);
 
         return Inertia::render('Admin/Classes/Index', [
             'classes' => $classes,
+            'courses' => $courses,
+            'aslabs' => $aslabs,
         ]);
     }
 
@@ -50,11 +54,13 @@ class LabClassController extends Controller
     public function update(Request $request, LabClass $class)
     {
         $request->validate([
+            'course_id' => 'required|exists:courses,id',
             'name' => 'required|string|max:255',
             'semester' => 'required|string|max:50',
+            'aslab_id' => 'required|exists:users,id',
         ]);
 
-        $class->update($request->only('name', 'semester'));
+        $class->update($request->only('course_id', 'name', 'semester', 'aslab_id'));
 
         return redirect()->back()->with('success', 'Kelas berhasil diperbarui.');
     }

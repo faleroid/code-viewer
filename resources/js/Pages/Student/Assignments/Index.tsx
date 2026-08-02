@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Badge } from '@/Components/ui/badge';
 import { Head, useForm } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import Title from '@/Components/Title';
@@ -9,6 +10,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { FileUp } from 'lucide-react';
 import { Sidebar } from '@/Components/Sidebar';
 import { getStudentSidebarItems } from '@/Components/Sidebar/studentNavigation';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/Components/ui/breadcrumb"
 
 interface AssignmentsIndexProps {
     classes?: any[];
@@ -64,22 +73,44 @@ export default function StudentAssignmentsIndex({
             },
         },
         {
-            accessorKey: 'course',
+            accessorKey: 'assignment.classes',
             header: ({ column }) => (
                 <div
                     className="flex items-center gap-1 cursor-pointer select-none"
                     onClick={() => column.toggleSorting()}
                 >
-                    Kelas
+                    Praktikum
                     {column.getIsSorted() ? (column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
                 </div>
             ),
             cell: ({ row }) => {
                 const task = row.original;
                 return (
-                    <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-sky-50 text-sky-600 border border-sky-100">
-                        {task.course?.name || 'Praktikum Web'}
-                    </span>
+                    <div className="flex items-center justify-center">
+                        <Badge className="bg-white hover:bg-white text-slate-700 border border-slate-100 font-semibold">
+                            {task.module?.lab_class?.course?.name || task.course?.name || 'Praktikum Web'}
+                        </Badge>
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: 'course',
+            header: ({ column }) => (
+                <div
+                    className="flex items-center gap-1 cursor-pointer select-none"
+                    onClick={() => column.toggleSorting()}
+                >
+                    Modul
+                    {column.getIsSorted() ? (column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                </div>
+            ),
+            cell: ({ row }) => {
+                const task = row.original;
+                return (
+                    <div className="text-sm font-medium">
+                        {task.module?.title || '-'}
+                    </div>
                 );
             },
         },
@@ -129,15 +160,19 @@ export default function StudentAssignmentsIndex({
 
                 if (isExpired) {
                     return (
-                        <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-700 uppercase tracking-wide border border-amber-200">
-                            BERAKHIR
-                        </span>
+                        <div className='flex justify-center'>
+                            <Badge className="bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-200 font-semibold">
+                                Berakhir
+                            </Badge>
+                        </div>
                     );
                 }
                 return (
-                    <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-sky-100 text-sky-700 uppercase tracking-wide border border-sky-200">
-                        AKTIF
-                    </span>
+                    <div className='flex justify-center'>
+                        <Badge className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 border border-emerald-200 font-semibold">
+                            Aktif
+                        </Badge>
+                    </div>
                 );
             },
         },
@@ -147,7 +182,7 @@ export default function StudentAssignmentsIndex({
             cell: ({ row }) => {
                 const task = row.original;
                 return (
-                    <div className="text-center">
+                    <div className="flex justify-center">
                         <Button
                             size="sm"
                             className="h-8 px-3 text-xs bg-sky-600 hover:bg-sky-700 text-white rounded-lg shadow-sm gap-1.5"
@@ -187,10 +222,26 @@ export default function StudentAssignmentsIndex({
 
                 {/* Main Content Area */}
                 <div className="flex-1 min-w-0 p-6 md:p-8 space-y-6 max-w-7xl">
-                    <Title
-                        title="Daftar Tugas Praktikum"
-                        subtitle="Kelola dan kumpulkan tugas praktikum Anda"
-                    />
+
+
+                    <div className='flex justify-between items-center'>
+                        <Title
+                            title="Daftar Tugas Praktikum"
+                            subtitle="Kelola dan kumpulkan tugas praktikum"
+                        />
+                        <Breadcrumb>
+                            <BreadcrumbList>
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbPage className="font-medium text-sky-600">Daftar Tugas</BreadcrumbPage>
+                                </BreadcrumbItem>
+                            </BreadcrumbList>
+                        </Breadcrumb>
+                    </div>
+
 
                     {/* DataTable Tugas Praktikum */}
                     <DataTable

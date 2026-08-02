@@ -1,4 +1,6 @@
 import React from 'react';
+import { HexagonPattern } from "@/Components/ui/hexagon-pattern"
+import { cn } from "@/lib/utils"
 
 export interface StatCardProps {
     title: string;
@@ -34,9 +36,19 @@ export default function StatCard({
     return (
         <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
             {/* Background Grid Pattern */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:1.25rem_1.25rem] opacity-30 pointer-events-none" />
+            <HexagonPattern
+                radius={25}
+                hexagons={[
+                    [5, 2],
+                    [6, 3],
+                    [7, 1],
+                ]}
+                className={cn(
+                    "[mask-image:linear-gradient(to_top_left,white,transparent,transparent)]"
+                )}
+            />
 
-            <div className="relative z-10 flex flex-col justify-between h-36">
+            <div className="relative z-10 flex flex-col justify-between h-28">
                 {/* Header Section */}
                 <div className="flex items-center justify-between">
                     <span className="text-lg font-semibold text-gray-900">{title}</span>
@@ -51,7 +63,7 @@ export default function StatCard({
 
                 {/* Content Section */}
                 <div>
-                    <div className="text-3xl font-bold tracking-tight text-gray-900">
+                    <div className="text-3xl font-semibold tracking-tight text-gray-900">
                         {value}
                     </div>
                     {subtitle && (

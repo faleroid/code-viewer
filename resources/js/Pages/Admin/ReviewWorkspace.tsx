@@ -169,12 +169,21 @@ export default function ReviewWorkspace({
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                         Review: {submission?.title} — {submission?.student}
                     </h2>
-                    <Badge
-                        variant={submission?.status === 'graded' ? 'default' : 'outline'}
-                        className={submission?.status === 'graded' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                    >
-                        {submission?.status}
-                    </Badge>
+                    <div className="flex items-center gap-3">
+                        <a
+                            href={route('submissions.download', submission.id)}
+                            download
+                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
+                        >
+                            Download ZIP
+                        </a>
+                        <Badge
+                            variant={submission?.status === 'graded' ? 'default' : 'outline'}
+                            className={submission?.status === 'graded' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                        >
+                            {submission?.status}
+                        </Badge>
+                    </div>
                 </div>
             }
         >

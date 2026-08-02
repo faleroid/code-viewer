@@ -28,9 +28,15 @@ class InlineCommentController extends Controller
             'parent_id' => $request->parent_id,
         ]);
 
-        $comment->load('user');
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Komentar berhasil ditambahkan.',
+                'comment' => $comment,
+            ]);
+        }
 
-        return back()->with('success', 'Komentar berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Komentar berhasil ditambahkan.');
     }
 
     /**

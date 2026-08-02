@@ -19,18 +19,45 @@ class SubmissionController extends Controller
 
         $path = $request->file('file')->store('submissions/zips');
 
-        $submission = Submission::create([
-            'assignment_id' => $assignment->id,
-            'user_id' => $request->user()->id,
-            'zip_path' => $path,
-            'submitted_at' => now(),
-            'is_late' => now()->isAfter($assignment->deadline),
-            'status' => 'pending',
-        ]);
+        // Resubmit support: if existing submission exists for this user & assignment
+        $existing = Submission::where('assignment_id', $assignment->id)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if ($existing) {
+            // Delete old extracted files
+            SubmissionFile::where('submission_id', $existing->id)->delete();
+            $existing->update([
+                'zip_path' => $path,
+                'submitted_at' => now(),
+                'is_late' => now()->isAfter($assignment->deadline),
+                'status' => 'pending',
+            ]);
+            $submission = $existing;
+        } else {
+            $submission = Submission::create([
+                'assignment_id' => $assignment->id,
+                'user_id' => $request->user()->id,
+                'zip_path' => $path,
+                'submitted_at' => now(),
+                'is_late' => now()->isAfter($assignment->deadline),
+                'status' => 'pending',
+            ]);
+        }
 
         \App\Jobs\ExtractSubmissionZipJob::dispatch($submission);
 
         return redirect()->back()->with('success', 'Tugas berhasil dikumpulkan dan sedang diproses.');
+    }
+
+    public function download(Submission $submission)
+    {
+        $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($submission->zip_path);
+        if (!file_exists($fullPath)) {
+            abort(404, 'File ZIP tidak ditemukan.');
+        }
+
+        return response()->download($fullPath, 'tugas_' . ($submission->user->nim ?? $submission->user_id) . '.zip');
     }
 
     public function review(Submission $submission)
@@ -93,11 +120,18 @@ class SubmissionController extends Controller
         ]);
 
         $total = collect($request->components)->reduce(function ($sum, $comp) {
-            $maxScore = $comp['max_score'] > 0 ? $comp['max_score'] : 1;
+            $maxScore = isset($comp['max_score']) && $comp['max_score'] > 0 ? $comp['max_score'] : 1;
             return $sum + (($comp['current_score'] / $maxScore) * $comp['weight']);
         }, 0);
 
-        \App\Models\Grade::updateOrCreate(
+        $existingGrade = \App\Models\Grade::where('submission_id', $submission->id)->first();
+        $oldValue = $existingGrade ? [
+            'score' => $existingGrade->score,
+            'feedback' => $existingGrade->feedback,
+            'aslab_id' => $existingGrade->aslab_id,
+        ] : null;
+
+        $grade = \App\Models\Grade::updateOrCreate(
             ['submission_id' => $submission->id],
             [
                 'aslab_id' => $request->user()->id,
@@ -109,12 +143,25 @@ class SubmissionController extends Controller
 
         $submission->update(['status' => 'graded']);
 
+        \App\Models\AuditLog::create([
+            'user_id' => $request->user()->id,
+            'action' => $existingGrade ? 'update_grade' : 'create_grade',
+            'subject_type' => Submission::class,
+            'subject_id' => $submission->id,
+            'old_value' => $oldValue,
+            'new_value' => [
+                'score' => $grade->score,
+                'feedback' => $grade->feedback,
+                'aslab_id' => $grade->aslab_id,
+            ],
+        ]);
+
         return redirect()->route('dashboard')->with('success', 'Penilaian berhasil disimpan.');
     }
 
     public function feedback(Submission $submission)
     {
-        $submission->load(['assignment', 'user', 'files']);
+        $submission->load(['assignment.module', 'user', 'files']);
         $grade = $submission->grade;
 
         // Load inline comments for this submission
@@ -191,17 +238,57 @@ class SubmissionController extends Controller
 
     private function sortTree(&$node)
     {
-        if (empty($node['children'])) return;
+        if (empty($node['children']))
+            return;
 
         usort($node['children'], function ($a, $b) {
             $aIsFolder = !empty($a['children']);
             $bIsFolder = !empty($b['children']);
-            if ($aIsFolder !== $bIsFolder) return $bIsFolder - $aIsFolder;
+            if ($aIsFolder !== $bIsFolder)
+                return $bIsFolder - $aIsFolder;
             return strcasecmp($a['name'], $b['name']);
         });
 
         foreach ($node['children'] as &$child) {
             $this->sortTree($child);
         }
+    }
+
+    public function index()
+    {
+        $submissions = Submission::with(['user', 'assignment'])
+            ->whereIn('status', ['pending', 'reviewing'])
+            ->get();
+        return Inertia::render('Admin/Submissions/Index', [
+            'pendingSubmissions' => $submissions,
+        ]);
+    }
+
+    public function fileContent(SubmissionFile $submissionFile)
+    {
+        $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($submissionFile->file_path);
+
+        if (!file_exists($fullPath)) {
+            return response()->json(['content' => '// File not found', 'error' => true], 404);
+        }
+
+        // Safety: only serve text files under 1MB
+        $size = filesize($fullPath);
+        if ($size > 1024 * 1024) {
+            return response()->json(['content' => '// File too large to display', 'error' => true]);
+        }
+
+        $content = file_get_contents($fullPath);
+
+        // Check if binary
+        if (preg_match('/[\x00-\x08\x0E-\x1F]/', substr($content, 0, 512))) {
+            return response()->json(['content' => '// Binary file — cannot display', 'error' => true]);
+        }
+
+        return response()->json([
+            'content' => $content,
+            'file_type' => $submissionFile->file_type,
+            'file_path' => $submissionFile->file_path,
+        ]);
     }
 }

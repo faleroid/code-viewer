@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Badge } from '@/Components/ui/badge';
 import { Sidebar } from '@/Components/Sidebar';
 import { getAdminSidebarItems } from '@/Components/Sidebar/adminNavigation';
+import { ChevronDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem } from '@/Components/ui/dropdown-menu';
 
 interface LabClass {
     id: number;
@@ -104,7 +106,7 @@ export default function CoursesShow({
                 <div className="w-64 shrink-0 hidden lg:block border-r border-slate-200/80 bg-white">
                     <Sidebar
                         items={getAdminSidebarItems()}
-                        activeId="buat-tugas"
+                        activeId="mata-kuliah"
                         className="w-full h-full border-none rounded-none"
                     />
                 </div>
@@ -113,7 +115,7 @@ export default function CoursesShow({
                 <div className="block lg:hidden w-full px-4 pt-4">
                     <Sidebar
                         items={getAdminSidebarItems()}
-                        activeId="buat-tugas"
+                        activeId="mata-kuliah"
                         className="w-full bg-white border border-slate-200/80 rounded-2xl p-3"
                     />
                 </div>
@@ -196,19 +198,42 @@ export default function CoursesShow({
                         </div>
                         <div>
                             <label className="text-sm font-medium block mb-1">Asisten Laboratorium (Pengampu)</label>
-                            <select
-                                value={data.aslab_id}
-                                onChange={(e) => setData('aslab_id', e.target.value)}
-                                className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 bg-white"
-                                disabled={editingClass !== null}
-                            >
-                                <option value="" disabled>Pilih Asisten Laboratorium</option>
-                                {aslabs.map((aslab) => (
-                                    <option key={aslab.id} value={aslab.id}>
-                                        {aslab.name} ({aslab.email})
-                                    </option>
-                                ))}
-                            </select>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger
+                                    disabled={editingClass !== null}
+                                    render={
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="w-full justify-between font-normal border-slate-200 text-left bg-white"
+                                            disabled={editingClass !== null}
+                                        >
+                                            <span className={aslabs.find((a) => a.id === Number(data.aslab_id)) ? 'text-slate-800 font-medium' : 'text-slate-400'}>
+                                                {aslabs.find((a) => a.id === Number(data.aslab_id))
+                                                    ? `${aslabs.find((a) => a.id === Number(data.aslab_id))?.name} (${aslabs.find((a) => a.id === Number(data.aslab_id))?.email})`
+                                                    : 'Pilih Asisten Laboratorium'}
+                                            </span>
+                                            <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+                                        </Button>
+                                    }
+                                />
+                                <DropdownMenuContent className="w-[var(--anchor-width)] max-h-60 overflow-y-auto bg-white border border-slate-200 shadow-md p-1 z-[60] pointer-events-auto">
+                                    <DropdownMenuGroup>
+                                        {aslabs.map((aslab) => (
+                                            <DropdownMenuItem
+                                                key={aslab.id}
+                                                onClick={() => setData('aslab_id', aslab.id)}
+                                                className={`cursor-pointer px-3 py-2 text-sm rounded-md transition-colors ${Number(data.aslab_id) === aslab.id
+                                                        ? 'bg-sky-50 text-sky-700 font-medium'
+                                                        : 'hover:bg-slate-100 text-slate-700'
+                                                    }`}
+                                            >
+                                                {aslab.name} ({aslab.email})
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                             {errors.aslab_id && <p className="text-sm text-red-500 mt-1">{errors.aslab_id}</p>}
                         </div>
                         <DialogFooter>

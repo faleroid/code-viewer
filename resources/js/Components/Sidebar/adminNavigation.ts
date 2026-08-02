@@ -1,4 +1,4 @@
-import { LayoutGrid, FileCheck, PlusCircle, CheckSquare } from 'lucide-react';
+import { LayoutDashboard, GraduationCap, BookOpen, Layers, Inbox, FileCheck, MessageSquareText, Sliders, FileSpreadsheet } from 'lucide-react';
 import { SidebarNavItem } from './types';
 
 export const getAdminSidebarItems = (): SidebarNavItem[] => {
@@ -14,17 +14,36 @@ export const getAdminSidebarItems = (): SidebarNavItem[] => {
         {
             id: 'dashboard',
             label: 'DASHBOARD',
-            icon: LayoutGrid,
+            icon: LayoutDashboard,
             href: getHref('dashboard', '/dashboard'),
+        },
+        {
+            id: 'akademik',
+            label: 'AKADEMIK',
+            icon: GraduationCap,
+            defaultOpen: true,
+            children: [
+                { id: 'mata-kuliah', label: 'Mata Kuliah', icon: BookOpen, href: getHref('courses.index', '/courses') },
+                { id: 'daftar-kelas', label: 'Daftar Kelas', icon: Layers, href: getHref('classes.index', '/classes') },
+            ],
         },
         {
             id: 'submission',
             label: 'SUBMISSION',
-            icon: FileCheck,
+            icon: Inbox,
             defaultOpen: true,
             children: [
-                { id: 'buat-tugas', label: 'Buat Tugas', icon: PlusCircle, href: getHref('courses.index', '/courses') },
-                { id: 'review', label: 'Review', icon: CheckSquare, href: getHref('submissions.index', '/submissions') },
+                { id: 'review', label: 'Antrean Review', icon: FileCheck, href: getHref('submissions.index', '/submissions') },
+                { id: 'discussions', label: 'Pusat Diskusi', icon: MessageSquareText, href: getHref('discussions.index', '/discussions') },
+            ],
+        },
+        {
+            id: 'manajemen',
+            label: 'MANAJEMEN',
+            icon: Sliders,
+            defaultOpen: true,
+            children: [
+                { id: 'template-rubrik', label: 'Template Rubrik', icon: FileSpreadsheet, href: getHref('rubric-templates.index', '/rubric-templates') },
             ],
         },
     ];

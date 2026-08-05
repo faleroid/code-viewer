@@ -30,8 +30,7 @@ class DiscussionController extends Controller
                       ->with([
                           'user:id,name,nim',
                           'assignment:id,title,module_id',
-                          'assignment.module.labClass:id,name,course_id',
-                          'assignment.module.labClass.course:id,name',
+                          'assignment.module.course:id,name',
                       ]);
                 },
                 'replies' => function ($q) {
@@ -64,8 +63,7 @@ class DiscussionController extends Controller
                     'student_name' => $comment->submissionFile->submission->user->name ?? '-',
                     'student_nim' => $comment->submissionFile->submission->user->nim ?? '-',
                     'assignment_title' => $comment->submissionFile->submission->assignment->title ?? '-',
-                    'class_name' => $comment->submissionFile->submission->assignment->module->labClass->name ?? '-',
-                    'course_name' => $comment->submissionFile->submission->assignment->module->labClass->course->name ?? '-',
+                    'course_name' => $comment->submissionFile->submission->assignment->module->course->name ?? '-',
                     'replies_count' => $comment->replies->count(),
                     'status' => $status,
                     'replies' => $comment->replies->map(fn($r) => [

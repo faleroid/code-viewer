@@ -39,7 +39,7 @@ class LabClassController extends Controller
 
     public function show(LabClass $class)
     {
-        $class->load(['course', 'aslab', 'students', 'modules.assignments']);
+        $class->load(['course.modules.assignments', 'aslab', 'students']);
 
         $availableStudents = User::where('role', 'mahasiswa')
             ->whereNotIn('id', $class->students->pluck('id'))

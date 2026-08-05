@@ -30,8 +30,9 @@ class DashboardController extends Controller
             ->with('course')
             ->get();
 
-        $assignments = Assignment::whereIn('module_id', function ($q) use ($myClasses) {
-            $q->select('id')->from('modules')->whereIn('lab_class_id', $myClasses->pluck('id'));
+        $courseIds = $myClasses->pluck('course_id');
+        $assignments = Assignment::whereIn('module_id', function ($q) use ($courseIds) {
+            $q->select('id')->from('modules')->whereIn('course_id', $courseIds);
         })
         ->with(['submissions' => fn($q) => $q->where('user_id', $user->id)->with('grade')])
         ->get();

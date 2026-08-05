@@ -1,7 +1,7 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
-import StatCard from '@/Components/StatCard';
+import StatCard from '@/Components/StatCardHexagon';
 import Title from '@/Components/Title';
 import { BookOpen, Clock, CheckCircle2, ArrowRight, ClipboardList } from 'lucide-react';
 import { Sidebar } from '@/Components/Sidebar';

@@ -8,9 +8,9 @@ class Module extends Model
 {
     protected $guarded = [];
 
-    public function labClass()
+    public function course()
     {
-        return $this->belongsTo(LabClass::class);
+        return $this->belongsTo(Course::class);
     }
 
     public function assignments()

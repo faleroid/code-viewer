@@ -1,9 +1,8 @@
 import React from 'react';
-import { HexagonPattern } from "@/Components/ui/hexagon-pattern"
+import { GridPattern } from "@/Components/ui/grid-pattern"
 import { cn } from "@/lib/utils"
 
 export interface StatCardProps {
-    title: string;
     value: string | number;
     subtitle?: string;
     icon?: React.ElementType;
@@ -22,8 +21,7 @@ const variantStyles = {
     gray: 'border-gray-400 bg-gray-50/40 text-gray-600'
 };
 
-export default function StatCard({
-    title,
+export default function StatCardHexagon({
     value,
     subtitle,
     icon: Icon,
@@ -36,41 +34,42 @@ export default function StatCard({
     return (
         <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
             {/* Background Grid Pattern */}
-            <HexagonPattern
-                radius={25}
-                hexagons={[
-                    [5, 2],
-                    [6, 3],
+            <GridPattern
+                width={28}
+                height={28}
+                squares={[
+                    [8, 3],
+                    [10, 2],
+                    [5, 0],
+                    [9, 1],
+                    [4, 3],
                     [7, 1],
                 ]}
                 className={cn(
-                    "[mask-image:linear-gradient(to_top_left,white,transparent,transparent)]"
+                    "[mask-image:linear-gradient(to_top_left,white_0%,transparent_50%)]"
                 )}
             />
 
-            <div className="relative z-10 flex flex-col justify-between h-28">
-                {/* Header Section */}
-                <div className="flex items-center justify-between">
-                    <span className="text-lg font-semibold text-gray-900">{title}</span>
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-xl border-2 transition-colors ${badgeClasses}`}>
+            <div className="relative z-10 flex flex-col justify-between h-fit">
+                {/* Content Section */}
+                <div className="flex items-center gap-4">
+                    <div className={`flex items-center justify-center p-3 rounded-xl border-2 transition-colors shrink-0 ${badgeClasses}`}>
                         {iconSlot ? (
                             iconSlot
                         ) : (
-                            Icon && <Icon className="w-5 h-5 stroke-[2.5]" />
+                            Icon && <Icon className="w-6 h-6 stroke-[2]" />
                         )}
                     </div>
-                </div>
-
-                {/* Content Section */}
-                <div>
-                    <div className="text-3xl font-semibold tracking-tight text-gray-900">
-                        {value}
+                    <div className="flex flex-col justify-center">
+                        <div className="text-xl font-semibold tracking-tight text-gray-900 leading-none">
+                            {value}
+                        </div>
+                        {subtitle && (
+                            <p className="text-sm text-gray-500 mt-1 font-medium">
+                                {subtitle}
+                            </p>
+                        )}
                     </div>
-                    {subtitle && (
-                        <p className="text-sm text-gray-900 mt-1">
-                            {subtitle}
-                        </p>
-                    )}
                 </div>
             </div>
         </div>

@@ -39,7 +39,7 @@ export default function StudentAssignmentsHistory({ submissions = [] }: HistoryP
                 const sub = row.original;
                 return (
                     <div>
-                        <div className="font-semibold text-slate-800">{sub.assignment?.title || 'Tugas'}</div>
+                        <div className="font-medium text-slate-800">{sub.assignment?.title || 'Tugas'}</div>
                     </div>
                 );
             },

@@ -11,16 +11,18 @@ class ModuleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'lab_class_id' => 'required|exists:lab_classes,id',
+            'course_id' => 'required|exists:courses,id',
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'order' => 'nullable|integer|min:1',
         ]);
 
-        $order = $request->order ?? Module::where('lab_class_id', $request->lab_class_id)->max('order') + 1;
+        $order = $request->order ?? Module::where('course_id', $request->course_id)->max('order') + 1;
 
         Module::create([
-            'lab_class_id' => $request->lab_class_id,
+            'course_id' => $request->course_id,
             'title' => $request->title,
+            'description' => $request->description,
             'order' => $order,
         ]);
 
@@ -31,17 +33,17 @@ class ModuleController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'order' => 'nullable|integer|min:1',
         ]);
 
-        $module->update($request->only('title', 'order'));
+        $module->update($request->only('title', 'description', 'order'));
 
         return redirect()->back()->with('success', 'Modul berhasil diperbarui.');
     }
 
     public function destroy(Module $module)
     {
-        $classId = $module->lab_class_id;
         $module->delete();
 
         return redirect()->back()->with('success', 'Modul berhasil dihapus.');

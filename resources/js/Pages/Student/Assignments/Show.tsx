@@ -41,7 +41,7 @@ export default function StudentAssignmentShow({ assignment }: { assignment: Assi
             header={
                 <div>
                     <span className="text-sm text-gray-500 block mb-1">
-                        {assignment.module?.labClass?.course?.name} — Kelas {assignment.module?.labClass?.name} / Modul: {assignment.module?.title}
+                        {assignment.module?.labClass?.course?.name} / Modul: {assignment.module?.title}
                     </span>
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                         {assignment.title}

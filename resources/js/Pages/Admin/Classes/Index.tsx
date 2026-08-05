@@ -9,7 +9,7 @@ import { Button } from '@/Components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Sidebar } from '@/Components/Sidebar';
 import { getAdminSidebarItems } from '@/Components/Sidebar/adminNavigation';
-import { Plus, ChevronDown, UserIcon, LaptopMinimal } from 'lucide-react';
+import { Plus, ChevronDown, UserIcon, LaptopMinimal, SquarePen, Trash2, Eye } from 'lucide-react';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -95,6 +95,10 @@ export default function ClassesIndex({
         setShowCreateDialog(true);
     };
 
+    const openClassDetail = (cls: ClassItem) => {
+        router.get(route('classes.show', cls.id));
+    };
+
     const submit = (e: FormEvent) => {
         e.preventDefault();
         if (editingClass) {
@@ -134,17 +138,18 @@ export default function ClassesIndex({
         },
         {
             accessorKey: 'name',
+            size: 100,
             header: ({ column }) => (
                 <div
                     className="flex items-center gap-1 cursor-pointer select-none"
                     onClick={() => column.toggleSorting()}
                 >
-                    Nama Kelas
+                    Kelas
                     {column.getIsSorted() ? (column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
                 </div>
             ),
             cell: ({ row }) => (
-                <Link href={route('classes.show', row.original.id)} className="text-sky-600 hover:underline font-semibold">
+                <Link href={route('classes.show', row.original.id)} className="flex justify-center text-sky-600 hover:underline font-semibold">
                     {row.original.name}
                 </Link>
             ),
@@ -191,27 +196,57 @@ export default function ClassesIndex({
             cell: ({ row }) => `${row.original.students_count} mahasiswa`,
         },
         {
-            id: 'actions',
+            accessorKey: 'show_action',
+            size: 50,
             header: () => <div></div>,
             cell: ({ row }) => {
                 const cls = row.original;
                 return (
-                    <div className="flex space-x-2 justify-center">
+                    <div className="flex items-center justify-center">
                         <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 text-xs border-slate-200 hover:bg-slate-50"
+                            variant="ghost"
+                            className="p-0 h-auto border-none shadow-none hover:bg-transparent"
+                            onClick={() => openClassDetail(cls)}
+                        >
+                            <Eye className="text-slate-500 w-4 h-4" />
+                        </Button>
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: 'edit_action',
+            size: 50,
+            header: () => <div></div>,
+            cell: ({ row }) => {
+                const cls = row.original;
+                return (
+                    <div className="flex items-center justify-center">
+                        <Button
+                            variant="ghost"
+                            className="p-0 h-auto border-none shadow-none hover:bg-transparent"
                             onClick={() => openEdit(cls)}
                         >
-                            Edit
+                            <SquarePen className="text-slate-500 w-4 h-4" />
                         </Button>
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: 'delete_action',
+            size: 50,
+            header: () => <div></div>,
+            cell: ({ row }) => {
+                const cls = row.original;
+                return (
+                    <div className="flex items-center justify-center">
                         <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                            variant="ghost"
+                            className="p-0 h-auto border-none shadow-none hover:bg-transparent"
                             onClick={() => deleteClass(cls)}
                         >
-                            Hapus
+                            <Trash2 className="text-slate-500 w-4 h-4" />
                         </Button>
                     </div>
                 );

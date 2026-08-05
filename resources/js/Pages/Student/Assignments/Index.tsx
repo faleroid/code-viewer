@@ -88,7 +88,7 @@ export default function StudentAssignmentsIndex({
                 return (
                     <div className="flex items-center justify-center">
                         <Badge className="bg-white hover:bg-white text-slate-700 border border-slate-100 font-semibold">
-                            {task.module?.lab_class?.course?.name || task.course?.name || 'Praktikum Web'}
+                            {task.module?.course?.name || task.course?.name || 'Praktikum Web'}
                         </Badge>
                     </div>
                 );
@@ -144,6 +144,7 @@ export default function StudentAssignmentsIndex({
         },
         {
             accessorKey: 'status',
+            size: 50,
             header: ({ column }) => (
                 <div
                     className="flex items-center gap-1 cursor-pointer select-none"
@@ -179,13 +180,14 @@ export default function StudentAssignmentsIndex({
         {
             id: 'actions',
             header: () => <div className="text-right">Aksi</div>,
+            size: 50,
             cell: ({ row }) => {
                 const task = row.original;
                 return (
                     <div className="flex justify-center">
                         <Button
                             size="sm"
-                            className="h-8 px-3 text-xs bg-sky-600 hover:bg-sky-700 text-white rounded-lg shadow-sm gap-1.5"
+                            className="h-8 px-3 text-xs bg-sky-600 hover:bg-sky-700 text-white rounded-md shadow-sm gap-1.5"
                             onClick={() => openUpload(task)}
                         >
                             <FileUp className="w-3.5 h-3.5" />

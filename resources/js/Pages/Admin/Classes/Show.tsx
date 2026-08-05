@@ -35,8 +35,7 @@ interface LabClass {
     id: number;
     name: string;
     semester: string;
-    course: { id: number; name: string };
-    modules?: Module[];
+    course: { id: number; name: string; modules?: Module[] };
     students?: Student[];
 }
 
@@ -195,20 +194,21 @@ export default function ClassesShow({
                     {/* Main Content: Modules & Assignments */}
                     <div className="md:col-span-2 space-y-6">
                         <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-bold text-gray-800">Modul Pembelajaran</h3>
-                            <Button onClick={openModuleCreate} size="sm">+ Tambah Modul</Button>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-800">Modul Pembelajaran</h3>
+                                <p className="text-xs text-gray-500">Modul diwarisi dari Silabus Mata Kuliah {labClass.course?.name}</p>
+                            </div>
+                            <Link href={route('courses.show', labClass.course?.id)}>
+                                <Button variant="outline" size="sm">Kelola Silabus Modul</Button>
+                            </Link>
                         </div>
 
-                        {labClass.modules?.map((mod, index) => (
+                        {labClass.course?.modules?.map((mod, index) => (
                             <Card key={mod.id}>
                                 <CardHeader className="bg-gray-50 border-b py-3 px-4 flex flex-row items-center justify-between space-y-0">
                                     <CardTitle className="text-base font-semibold">
                                         Modul {mod.order || index + 1}: {mod.title}
                                     </CardTitle>
-                                    <div className="space-x-2">
-                                        <Button variant="ghost" size="sm" onClick={() => openModuleEdit(mod)}>Edit</Button>
-                                        <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-800 hover:bg-red-50" onClick={() => deleteModule(mod)}>Hapus</Button>
-                                    </div>
                                 </CardHeader>
                                 <CardContent className="p-4">
                                     {mod.assignments && mod.assignments.length > 0 ? (
@@ -226,7 +226,7 @@ export default function ClassesShow({
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="text-sm text-gray-500 italic mb-4">Belum ada tugas di modul ini.</div>
+                                        <div className="text-sm text-gray-500 italic mb-4">Belum ada tugas di modul ini untuk kelas ini.</div>
                                     )}
 
                                     <Button variant="outline" size="sm" className="w-full border-dashed" onClick={() => openAssignmentCreate(mod.id)}>
@@ -236,10 +236,12 @@ export default function ClassesShow({
                             </Card>
                         ))}
 
-                        {(!labClass.modules || labClass.modules.length === 0) && (
+                        {(!labClass.course?.modules || labClass.course.modules.length === 0) && (
                             <div className="text-center py-10 bg-white rounded-lg border border-dashed border-gray-300">
-                                <p className="text-gray-500 mb-2">Belum ada modul di kelas ini.</p>
-                                <Button onClick={openModuleCreate} variant="outline">Buat Modul Pertama</Button>
+                                <p className="text-gray-500 mb-2">Belum ada modul praktikum di silabus mata kuliah ini.</p>
+                                <Link href={route('courses.show', labClass.course?.id)}>
+                                    <Button variant="outline">Tambah Modul ke Mata Kuliah</Button>
+                                </Link>
                             </div>
                         )}
                     </div>

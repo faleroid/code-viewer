@@ -1,7 +1,7 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
-import StatCard from '@/Components/StatCard';
+import StatCard from '@/Components/StatCardHexagon';
 import Title from '@/Components/Title';
 import { BookOpen, Clock, CheckCircle2, ArrowRight, CheckSquare } from 'lucide-react';
 import { Sidebar } from '@/Components/Sidebar';
@@ -45,28 +45,28 @@ export default function AdminDashboard({
 
                     {/* Overview Stats */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                        <StatCard 
-                            title="Akademik" 
-                            value={classes ? classes.length : 0} 
-                            subtitle="Kelas Aktif" 
+                        <StatCard
+                            title="Akademik"
+                            value={classes ? classes.length : 0}
+                            subtitle="Kelas Aktif"
                             icon={BookOpen}
-                            variant="sky" 
+                            variant="sky"
                         />
 
-                        <StatCard 
-                            title="Penilaian" 
-                            value={pendingSubmissions ? pendingSubmissions.length : 0} 
-                            subtitle="Menunggu Review" 
+                        <StatCard
+                            title="Penilaian"
+                            value={pendingSubmissions ? pendingSubmissions.length : 0}
+                            subtitle="Menunggu Review"
                             icon={Clock}
-                            variant="orange" 
+                            variant="orange"
                         />
 
-                        <StatCard 
-                            title="Riwayat" 
-                            value={0} 
-                            subtitle="Tugas Dinilai" 
+                        <StatCard
+                            title="Riwayat"
+                            value={0}
+                            subtitle="Tugas Dinilai"
                             icon={CheckCircle2}
-                            variant="green" 
+                            variant="green"
                         />
                     </div>
 

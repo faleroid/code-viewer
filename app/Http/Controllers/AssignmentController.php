@@ -86,9 +86,10 @@ class AssignmentController extends Controller
     {
         $user = $request->user();
         $myClasses = LabClass::whereHas('students', fn($q) => $q->where('user_id', $user->id))->with('course')->get();
-        $assignments = Assignment::whereIn('module_id', function ($q) use ($myClasses) {
-            $q->select('id')->from('modules')->whereIn('lab_class_id', $myClasses->pluck('id'));
-        })->with(['module.labClass.course', 'submissions' => fn($q) => $q->where('user_id', $user->id)->with('grade')])->get();
+        $courseIds = $myClasses->pluck('course_id');
+        $assignments = Assignment::whereIn('module_id', function ($q) use ($courseIds) {
+            $q->select('id')->from('modules')->whereIn('course_id', $courseIds);
+        })->with(['module.course', 'submissions' => fn($q) => $q->where('user_id', $user->id)->with('grade')])->get();
 
         return Inertia::render('Student/Assignments/Index', [
             'assignments' => $assignments,
@@ -100,7 +101,7 @@ class AssignmentController extends Controller
     {
         $user = $request->user();
         $submissions = Submission::where('user_id', $user->id)
-            ->with(['assignment.module.labClass.course', 'grade'])
+            ->with(['assignment.module.course', 'grade'])
             ->orderBy('submitted_at', 'desc')
             ->get();
 
@@ -113,8 +114,8 @@ class AssignmentController extends Controller
     {
         $user = $request->user();
         $submissions = Submission::where('user_id', $user->id)
-            ->where('status', 'graded')
-            ->with(['assignment.module.labClass.course', 'grade'])
+            ->whereNotNull('status')
+            ->with(['assignment.module.course', 'grade'])
             ->orderBy('submitted_at', 'desc')
             ->get();
 

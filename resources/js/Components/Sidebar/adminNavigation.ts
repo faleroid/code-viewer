@@ -23,8 +23,9 @@ export const getAdminSidebarItems = (): SidebarNavItem[] => {
             icon: GraduationCap,
             defaultOpen: true,
             children: [
-                { id: 'mata-kuliah', label: 'Mata Kuliah', icon: BookOpen, href: getHref('courses.index', '/courses') },
                 { id: 'daftar-kelas', label: 'Daftar Kelas', icon: Layers, href: getHref('classes.index', '/classes') },
+                { id: 'mata-kuliah', label: 'Mata Kuliah', icon: BookOpen, href: getHref('courses.index', '/courses') },
+
             ],
         },
         {

@@ -12,4 +12,9 @@ class Course extends Model
     {
         return $this->hasMany(LabClass::class);
     }
+
+    public function modules()
+    {
+        return $this->hasMany(Module::class)->orderBy('order');
+    }
 }

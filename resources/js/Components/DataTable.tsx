@@ -33,6 +33,7 @@ export interface DataTableProps {
     showSelect?: boolean;
     showExport?: boolean;
     showFilter?: boolean;
+    actionButton?: React.ReactNode;
     onExport?: () => void;
     onFilter?: () => void;
 }
@@ -45,6 +46,7 @@ export default function DataTable({
     showSelect = true,
     showExport = true,
     showFilter = true,
+    actionButton,
     onExport,
     onFilter,
 }: DataTableProps) {
@@ -63,7 +65,7 @@ export default function DataTable({
                     <Checkbox
                         checked={table.getIsAllPageRowsSelected()}
                         onChange={(e) => table.toggleAllPageRowsSelected(e.target.checked)}
-                        className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"
+                        className="rounded border-slate-300 text-sky-400 focus:ring-transparent w-4 h-4"
                     />
                 </div>
             ),
@@ -72,12 +74,13 @@ export default function DataTable({
                     <Checkbox
                         checked={row.getIsSelected()}
                         onChange={(e) => row.toggleSelected(e.target.checked)}
-                        className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"
+                        className="rounded border-slate-300 text-sky-400 focus:ring-transparent w-4 h-4"
                     />
                 </div>
             ),
             enableSorting: false,
             enableHiding: false,
+            size: 50,
         };
 
         return [selectColumn, ...columns];
@@ -107,13 +110,16 @@ export default function DataTable({
             {/* Header Controls */}
             <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100">
                 <h2 className="text-lg font-semibold text-slate-800 tracking-tight">{tableTitle}</h2>
-                
+
                 <div className="flex items-center gap-2.5 flex-wrap">
+                    {/* Action Button */}
+                    {actionButton}
+
                     {/* Filter Button */}
                     {showFilter && (
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
+                        <Button
+                            variant="outline"
+                            size="sm"
                             className="h-9 px-3 text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900 shadow-none gap-2 font-normal rounded-lg"
                             onClick={onFilter}
                         >
@@ -125,7 +131,7 @@ export default function DataTable({
                     {/* Search Input */}
                     <div className="relative min-w-[180px] sm:min-w-[220px]">
                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                        <Input 
+                        <Input
                             value={globalFilter ?? ''}
                             onChange={(e) => setGlobalFilter(e.target.value)}
                             placeholder={searchPlaceholder}
@@ -135,9 +141,9 @@ export default function DataTable({
 
                     {/* Excel / Export Button */}
                     {showExport && (
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
+                        <Button
+                            variant="outline"
+                            size="sm"
                             className="h-9 px-3 border-emerald-200 bg-emerald-50/50 text-emerald-700 hover:bg-emerald-100/70 hover:text-emerald-800 shadow-none gap-1.5 font-medium rounded-lg"
                             onClick={onExport}
                         >
@@ -155,13 +161,16 @@ export default function DataTable({
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id} className="hover:bg-transparent border-b-slate-200/80">
                                 {headerGroup.headers.map((header) => (
-                                    <TableHead 
+                                    <TableHead
                                         key={header.id}
+                                        style={header.column.columnDef.size ? { width: `${header.column.columnDef.size}px` } : undefined}
                                         className="h-11 px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider border-r last:border-r-0 border-slate-200/60 select-none"
                                     >
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(header.column.columnDef.header, header.getContext())}
+                                        <p className='flex justify-center'>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(header.column.columnDef.header, header.getContext())}
+                                        </p>
                                     </TableHead>
                                 ))}
                             </TableRow>
@@ -173,11 +182,12 @@ export default function DataTable({
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() ? 'selected' : undefined}
-                                    className="hover:bg-slate-50/60 transition-colors border-b border-slate-100 last:border-b-0 data-[state=selected]:bg-emerald-50/30"
+                                    className="hover:bg-slate-50/60 transition-colors border-b border-slate-100 last:border-b-0 data-[state=selected]:bg-sky-50/30"
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell 
+                                        <TableCell
                                             key={cell.id}
+                                            style={cell.column.columnDef.size ? { width: `${cell.column.columnDef.size}px` } : undefined}
                                             className="px-4 py-3.5 text-slate-700 border-r last:border-r-0 border-slate-100 align-middle"
                                         >
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}

@@ -62,7 +62,7 @@ class SubmissionController extends Controller
 
     public function review(Submission $submission)
     {
-        $submission->load(['user', 'assignment.module.labClass.course', 'assignment.rubricComponents']);
+        $submission->load(['user', 'assignment.module.course', 'assignment.rubricComponents']);
 
         $files = SubmissionFile::where('submission_id', $submission->id)->orderBy('file_path')->get();
         $fileTree = $this->buildNestedFileTree($files);

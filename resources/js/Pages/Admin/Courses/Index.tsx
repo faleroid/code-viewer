@@ -8,7 +8,7 @@ import DataTable from '@/Components/DataTable';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Sidebar } from '@/Components/Sidebar';
 import { getAdminSidebarItems } from '@/Components/Sidebar/adminNavigation';
-import { Plus } from 'lucide-react';
+import { Plus, SquarePen, Trash2, BookOpenText } from 'lucide-react';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -23,6 +23,7 @@ interface Course {
     code: string;
     name: string;
     lab_classes_count: number;
+    modules_count?: number;
 }
 
 export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
@@ -70,12 +71,17 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
         }
     };
 
+    const openModule = (course: Course) => {
+        router.get(route('courses.show', course.id));
+    };
+
     const columns = useMemo<ColumnDef<Course>[]>(() => [
         {
             accessorKey: 'code',
+            size: 80,
             header: ({ column }) => (
                 <div
-                    className="flex items-center gap-1 cursor-pointer select-none"
+                    className="cursor-pointer select-none"
                     onClick={() => column.toggleSorting()}
                 >
                     Kode
@@ -83,9 +89,9 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
                 </div>
             ),
             cell: ({ row }) => (
-                <span className="font-medium text-slate-800">
+                <p className="text-center font-medium text-slate-800">
                     {row.original.code}
-                </span>
+                </p>
             ),
         },
         {
@@ -120,33 +126,78 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
                 </div>
             ),
             cell: ({ row }) => (
-                <span className="text-slate-700">
+                <p className="text-center text-slate-700">
                     {row.original.lab_classes_count} kelas
-                </span>
+                </p>
             ),
         },
         {
-            id: 'actions',
+            accessorKey: 'modules_count',
+            header: ({ column }) => (
+                <div
+                    className="flex items-center gap-1 cursor-pointer select-none"
+                    onClick={() => column.toggleSorting()}
+                >
+                    Total Modul
+                    {column.getIsSorted() ? (column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                </div>
+            ),
+            cell: ({ row }) => (
+                <p className="text-center text-slate-700">
+                    {row.original.modules_count ?? 0} modul
+                </p>
+            ),
+        },
+        {
+            accessorKey: 'modules-action',
+            size: 50,
+            header: () => <div></div>,
+            cell: ({ row }) => (
+                <div className="flex items-center justify-center">
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        className='p-0 h-auto border-none shadow-none hover:bg-transparent'
+                        onClick={() => openModule(row.original)}
+                    >
+                        <BookOpenText className='text-gray-500' />
+                    </Button>
+                </div >
+            ),
+        },
+        {
+            accessorKey: 'edit_action',
+            size: 50,
             header: () => <div></div>,
             cell: ({ row }) => {
                 const course = row.original;
                 return (
-                    <div className="flex space-x-2 justify-center">
+                    <div className="flex items-center justify-center">
                         <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 text-xs border-slate-200 hover:bg-slate-50"
+                            variant="ghost"
+                            className="p-0 h-auto border-none shadow-none hover:bg-transparent"
                             onClick={() => openEdit(course)}
                         >
-                            Edit
+                            <SquarePen className="text-slate-500 w-4 h-4" />
                         </Button>
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: 'delete_action',
+            size: 50,
+            header: () => <div></div>,
+            cell: ({ row }) => {
+                const course = row.original;
+                return (
+                    <div className="flex items-center justify-center">
                         <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                            variant="ghost"
+                            className="p-0 h-auto border-none shadow-none hover:bg-transparent"
                             onClick={() => deleteCourse(course)}
                         >
-                            Hapus
+                            <Trash2 className="text-slate-500 w-4 h-4" />
                         </Button>
                     </div>
                 );
@@ -194,8 +245,7 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <Title title="Manajemen Mata Kuliah" subtitle="Kelola Mata Kuliah & Tugas Praktikum" />
 
-
-                        <Button onClick={openCreate} className="bg-sky-600 hover:bg-sky-700 text-white gap-1.5 shadow-sm self-start sm:self-auto">
+                        <Button onClick={openCreate} className="bg-sky-500 hover:bg-sky-600 text-white gap-1.5 shadow-sm self-start sm:self-auto">
                             <Plus className="w-4 h-4" />
                             <span>Tambah Mata Kuliah</span>
                         </Button>

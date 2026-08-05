@@ -10,7 +10,7 @@ class CourseController extends Controller
 {
     public function index()
     {
-        $courses = Course::withCount('labClasses')->orderBy('name')->get();
+        $courses = Course::withCount(['labClasses', 'modules'])->orderBy('name')->get();
 
         return Inertia::render('Admin/Courses/Index', [
             'courses' => $courses,
@@ -50,7 +50,7 @@ class CourseController extends Controller
 
     public function show(Course $course)
     {
-        $course->load(['labClasses.aslab', 'labClasses' => function ($q) {
+        $course->load(['modules.assignments', 'labClasses.aslab', 'labClasses' => function ($q) {
             $q->withCount('students');
         }]);
 

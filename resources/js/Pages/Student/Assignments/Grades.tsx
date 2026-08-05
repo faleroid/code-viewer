@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import Title from '@/Components/Title';
 import DataTable from '@/Components/DataTable';
-import StatCard from '@/Components/StatCard';
+import StatCardGrid from '@/Components/StatCardGrid';
 import { Button } from '@/Components/ui/button';
 import { Sidebar } from '@/Components/Sidebar';
 import { getStudentSidebarItems } from '@/Components/Sidebar/studentNavigation';
@@ -17,6 +17,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/Components/ui/breadcrumb"
+import StatCardHexagon from '@/Components/StatCardHexagon';
 
 
 interface GradesProps {
@@ -50,7 +51,7 @@ export default function StudentAssignmentsGrades({ submissions = [] }: GradesPro
                 const sub = row.original;
                 return (
                     <div>
-                        <div className="font-semibold text-slate-800">{sub.assignment?.title || 'Tugas'}</div>
+                        <div className="font-medium text-slate-800">{sub.assignment?.title || 'Tugas'}</div>
                     </div>
                 );
             },
@@ -92,7 +93,7 @@ export default function StudentAssignmentsGrades({ submissions = [] }: GradesPro
 
                 return (
                     <div className="flex items-center justify-center gap-3">
-                        <p className="font-bold text-slate-900">{Math.round(score)}</p>
+                        <p className="font-medium text-slate-900">{Math.round(score)}</p>
                     </div>
                 );
             },
@@ -191,24 +192,21 @@ export default function StudentAssignmentsGrades({ submissions = [] }: GradesPro
 
                     {/* Stats Overview */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                        <StatCard
-                            title="Indeks Performa"
+                        <StatCardGrid
                             value={averageScore}
                             subtitle="Rata-rata Nilai"
                             icon={TrendingUp}
                             variant="sky"
                         />
 
-                        <StatCard
-                            title="Status Evaluasi"
+                        <StatCardGrid
                             value={gradedSubmissions.length}
                             subtitle="Tugas Sudah Dinilai"
                             icon={CheckCircle2}
                             variant="green"
                         />
 
-                        <StatCard
-                            title="Total Prestasi"
+                        <StatCardGrid
                             value={gradedSubmissions.filter(s => (s.grade?.score || 0) >= 80).length}
                             subtitle="Tugas Berpredikat A/B+"
                             icon={Award}

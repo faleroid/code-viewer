@@ -73,7 +73,7 @@ export default function StudentFeedback({
                                         </BreadcrumbItem>
                                         <BreadcrumbSeparator />
                                         <BreadcrumbItem>
-                                            <BreadcrumbLink className="font-medium text-slate-400"><Link href={route('assignments.grades')}>Nilai & Feedback</Link></BreadcrumbLink>
+                                            <BreadcrumbLink><Link href={route('assignments.grades')}>Nilai & Feedback</Link></BreadcrumbLink>
                                         </BreadcrumbItem>
                                         <BreadcrumbSeparator />
                                         <BreadcrumbItem>

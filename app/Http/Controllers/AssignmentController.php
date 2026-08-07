@@ -37,6 +37,26 @@ class AssignmentController extends Controller
             }
         }
 
+        if (!empty($request->publish_classes) && is_array($request->publish_classes)) {
+            $isPublished = (bool) $request->input('publish_now', true);
+            $startTime = $request->input('start_time') ? $request->input('start_time') : ($isPublished ? now() : null);
+            $classDeadline = $request->input('class_deadline') ? $request->input('class_deadline') : $request->deadline;
+
+            foreach ($request->publish_classes as $classId) {
+                \App\Models\ClassAssignmentSchedule::updateOrCreate(
+                    [
+                        'lab_class_id' => $classId,
+                        'assignment_id' => $assignment->id,
+                    ],
+                    [
+                        'is_published' => $isPublished,
+                        'start_time' => $startTime,
+                        'deadline' => $classDeadline,
+                    ]
+                );
+            }
+        }
+
         return redirect()->back()->with('success', 'Tugas berhasil dibuat.');
     }
 

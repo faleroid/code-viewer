@@ -1,7 +1,8 @@
 import React, { PropsWithChildren, ReactNode, useState, useEffect } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
-import { Search, Bell, Monitor, Headphones, ChevronDown, GraduationCap } from 'lucide-react';
+import { Search, Bell, Monitor, Headphones, ChevronDown, GraduationCap, Plus } from 'lucide-react';
+import QuickAssignmentModal from '@/Components/QuickAssignmentModal';
 
 const LogoEmblem = () => (
     <div className="flex items-center gap-3">
@@ -19,11 +20,13 @@ export default function AuthenticatedLayout({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
-    const { auth, flash } = usePage().props as any;
+    const pageProps = usePage().props as any;
+    const { auth, flash, courses = [], classes = [], rubricTemplates = [] } = pageProps;
     const user = auth?.user;
     const isAslab = user?.role === 'aslab' || user?.role === 'admin';
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [showHeaderQuickModal, setShowHeaderQuickModal] = useState(false);
     const [flashMessage, setFlashMessage] = useState<string | null>(null);
     const [showFlash, setShowFlash] = useState(false);
 
@@ -84,14 +87,6 @@ export default function AuthenticatedLayout({
                             <Bell className="w-4 h-4" />
                         </button>
 
-                        <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
-                            <Monitor className="w-4 h-4" />
-                        </button>
-
-                        <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
-                            <Headphones className="w-4 h-4" />
-                        </button>
-
                         {/* User Role Pill */}
                         {user?.role && (
                             <span className="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 capitalize">
@@ -137,6 +132,16 @@ export default function AuthenticatedLayout({
             )}
 
             <main className="flex-1 flex flex-col">{children}</main>
+
+            {isAslab && (
+                <QuickAssignmentModal
+                    open={showHeaderQuickModal}
+                    onOpenChange={setShowHeaderQuickModal}
+                    courses={courses}
+                    classes={classes}
+                    rubricTemplates={rubricTemplates}
+                />
+            )}
         </div>
     );
 }

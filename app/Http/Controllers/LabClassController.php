@@ -39,7 +39,13 @@ class LabClassController extends Controller
 
     public function show(LabClass $class)
     {
-        $class->load(['course.modules.assignments', 'aslab', 'students']);
+        $class->load([
+            'course.modules.assignments.classSchedules' => function ($q) use ($class) {
+                $q->where('lab_class_id', $class->id);
+            },
+            'aslab',
+            'students'
+        ]);
 
         $availableStudents = User::where('role', 'mahasiswa')
             ->whereNotIn('id', $class->students->pluck('id'))
@@ -49,6 +55,51 @@ class LabClassController extends Controller
             'labClass' => $class,
             'availableStudents' => $availableStudents,
         ]);
+    }
+
+    /**
+     * Update or create assignment schedule for a specific class.
+     */
+    public function updateAssignmentSchedule(Request $request, LabClass $class, \App\Models\Assignment $assignment)
+    {
+        $request->validate([
+            'is_published' => 'required|boolean',
+            'start_time' => 'nullable|date',
+            'deadline' => 'nullable|date',
+        ]);
+
+        \App\Models\ClassAssignmentSchedule::updateOrCreate(
+            [
+                'lab_class_id' => $class->id,
+                'assignment_id' => $assignment->id,
+            ],
+            [
+                'is_published' => $request->is_published,
+                'start_time' => $request->start_time,
+                'deadline' => $request->deadline,
+            ]
+        );
+
+        return redirect()->back()->with('success', 'Jadwal dan status rilis tugas berhasil disimpan.');
+    }
+
+    /**
+     * Instantly release an assignment for a class ("Mulai Tugas Sekarang").
+     */
+    public function instantReleaseAssignment(LabClass $class, \App\Models\Assignment $assignment)
+    {
+        \App\Models\ClassAssignmentSchedule::updateOrCreate(
+            [
+                'lab_class_id' => $class->id,
+                'assignment_id' => $assignment->id,
+            ],
+            [
+                'is_published' => true,
+                'start_time' => now(),
+            ]
+        );
+
+        return redirect()->back()->with('success', 'Tugas berhasil dirilis sekarang untuk kelas ini.');
     }
 
     public function update(Request $request, LabClass $class)

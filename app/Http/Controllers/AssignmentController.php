@@ -44,8 +44,28 @@ class AssignmentController extends Controller
     {
         $user = $request->user();
 
+        if ($user->role === 'mahasiswa') {
+            $myClassIds = LabClass::whereHas('students', fn($q) => $q->where('user_id', $user->id))->pluck('id');
+
+            $schedule = \App\Models\ClassAssignmentSchedule::whereIn('lab_class_id', $myClassIds)
+                ->where('assignment_id', $assignment->id)
+                ->where('is_published', true)
+                ->where(function ($q) {
+                    $q->whereNull('start_time')->orWhere('start_time', '<=', now());
+                })
+                ->first();
+
+            if (!$schedule) {
+                return redirect()->route('assignments.index')->with('error', 'Tugas belum dibuka atau tidak tersedia untuk kelas Anda.');
+            }
+
+            if ($schedule->deadline) {
+                $assignment->deadline = $schedule->deadline;
+            }
+        }
+
         $assignment->load([
-            'module.labClass.course',
+            'module.course',
             'rubricComponents',
             'submissions' => function ($query) use ($user) {
                 if ($user->role === 'mahasiswa') {
@@ -86,10 +106,31 @@ class AssignmentController extends Controller
     {
         $user = $request->user();
         $myClasses = LabClass::whereHas('students', fn($q) => $q->where('user_id', $user->id))->with('course')->get();
-        $courseIds = $myClasses->pluck('course_id');
-        $assignments = Assignment::whereIn('module_id', function ($q) use ($courseIds) {
-            $q->select('id')->from('modules')->whereIn('course_id', $courseIds);
-        })->with(['module.course', 'submissions' => fn($q) => $q->where('user_id', $user->id)->with('grade')])->get();
+        $myClassIds = $myClasses->pluck('id');
+
+        $assignments = Assignment::whereHas('classSchedules', function ($q) use ($myClassIds) {
+            $q->whereIn('lab_class_id', $myClassIds)
+                ->where('is_published', true)
+                ->where(function ($sub) {
+                    $sub->whereNull('start_time')->orWhere('start_time', '<=', now());
+                });
+        })
+            ->with([
+                'module.course',
+                'classSchedules' => function ($q) use ($myClassIds) {
+                    $q->whereIn('lab_class_id', $myClassIds);
+                },
+                'submissions' => fn($q) => $q->where('user_id', $user->id)->with('grade')
+            ])
+            ->get();
+
+        $assignments->transform(function ($assignment) {
+            $schedule = $assignment->classSchedules->first();
+            if ($schedule && $schedule->deadline) {
+                $assignment->deadline = $schedule->deadline;
+            }
+            return $assignment;
+        });
 
         return Inertia::render('Student/Assignments/Index', [
             'assignments' => $assignments,

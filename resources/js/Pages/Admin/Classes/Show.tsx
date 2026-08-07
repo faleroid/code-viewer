@@ -3,12 +3,21 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
+import Title from '@/Components/Title';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Badge } from '@/Components/ui/badge';
 import { Sidebar } from '@/Components/Sidebar';
 import { getAdminSidebarItems } from '@/Components/Sidebar/adminNavigation';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Calendar, Play, UsersIcon } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem } from '@/Components/ui/dropdown-menu';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/Components/ui/breadcrumb"
 
 interface Student {
     id: number;
@@ -17,11 +26,22 @@ interface Student {
     email: string;
 }
 
+interface ClassSchedule {
+    id?: number;
+    lab_class_id?: number;
+    assignment_id?: number;
+    start_time?: string | null;
+    deadline?: string | null;
+    is_published?: boolean;
+}
+
 interface Assignment {
     id: number;
     title: string;
+    description?: string;
     deadline: string;
     max_score: number;
+    class_schedules?: ClassSchedule[];
 }
 
 interface Module {
@@ -35,9 +55,36 @@ interface LabClass {
     id: number;
     name: string;
     semester: string;
+    aslab_id?: number;
+    aslab?: { id?: number; name?: string; email?: string } | null;
     course: { id: number; name: string; modules?: Module[] };
     students?: Student[];
 }
+
+const formatDateWIB = (dateInput?: string | Date | null) => {
+    if (!dateInput) return '-';
+    const date = typeof dateInput === 'string' ? new Date(dateInput.replace(' ', 'T')) : dateInput;
+    if (isNaN(date.getTime())) return '-';
+    const formatted = new Intl.DateTimeFormat('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Jakarta',
+    }).format(date);
+    return `${formatted.replace(/\./g, ':')} WIB`;
+};
+
+const getInitials = (name: string) => {
+    if (!name) return 'P';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return parts[0].substring(0, 2).toUpperCase();
+};
 
 export default function ClassesShow({
     labClass,
@@ -115,6 +162,51 @@ export default function ClassesShow({
         }
     };
 
+    // Assignment Class Schedule State
+    const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+    const [selectedAssignmentForSchedule, setSelectedAssignmentForSchedule] = useState<Assignment | null>(null);
+
+    const scheduleForm = useForm({
+        is_published: false,
+        start_time: '',
+        deadline: '',
+    });
+
+    const openScheduleModal = (assign: Assignment) => {
+        setSelectedAssignmentForSchedule(assign);
+        const currentSched = assign.class_schedules?.[0];
+        scheduleForm.setData({
+            is_published: currentSched?.is_published ?? false,
+            start_time: currentSched?.start_time ? new Date(currentSched.start_time).toISOString().slice(0, 16) : '',
+            deadline: currentSched?.deadline ? new Date(currentSched.deadline).toISOString().slice(0, 16) : (assign.deadline ? new Date(assign.deadline).toISOString().slice(0, 16) : ''),
+        });
+        scheduleForm.clearErrors();
+        setShowScheduleDialog(true);
+    };
+
+    const submitSchedule = (e: FormEvent) => {
+        e.preventDefault();
+        if (selectedAssignmentForSchedule) {
+            scheduleForm.post(route('classes.assignments.schedule', { class: labClass.id, assignment: selectedAssignmentForSchedule.id }), {
+                onSuccess: () => setShowScheduleDialog(false),
+            });
+        }
+    };
+
+    const handleInstantRelease = (assign: Assignment) => {
+        if (confirm(`Rilis tugas "${assign.title}" sekarang untuk kelas ${labClass.name}? Mahasiswa di kelas ini akan langsung dapat melihat dan mengerjakan tugas.`)) {
+            router.post(route('classes.assignments.instant-release', { class: labClass.id, assignment: assign.id }));
+        }
+    };
+
+    const handleDisableAssignment = (assign: Assignment) => {
+        if (confirm(`Nonaktifkan tugas "${assign.title}" untuk kelas ${labClass.name}? Mahasiswa tidak akan dapat mengakses tugas ini lagi.`)) {
+            router.post(route('classes.assignments.schedule', { class: labClass.id, assignment: assign.id }), {
+                is_published: false,
+            });
+        }
+    };
+
     // Student Enrollment State
     const [showEnrollDialog, setShowEnrollDialog] = useState(false);
     const enrollForm = useForm<{ student_ids: number[] }>({ student_ids: [] });
@@ -145,29 +237,8 @@ export default function ClassesShow({
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div className="flex items-center justify-between">
-                    <div>
-                        <Link href={route('courses.show', labClass.course.id)} className="text-sm text-gray-500 hover:underline mb-1 inline-block">
-                            &larr; {labClass.course.name}
-                        </Link>
-                        <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                            Kelas {labClass.name}
-                            <Badge variant="outline" className="ml-2 align-middle">{labClass.semester}</Badge>
-                        </h2>
-                    </div>
-                    <a
-                        href={route('classes.export-grades', labClass.id)}
-                        download
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
-                    >
-                        Ekspor Nilai (CSV)
-                    </a>
-                </div>
-            }
-        >
-            <Head title={labClass.name} />
+        <AuthenticatedLayout>
+            <Head title={`Kelas ${labClass.name}`} />
 
             <div className="flex min-h-[calc(100vh-4rem)] bg-slate-50/50">
                 {/* Sidebar Admin */}
@@ -190,237 +261,188 @@ export default function ClassesShow({
 
                 {/* Main Content Area */}
                 <div className="flex-1 min-w-0 p-6 md:p-8 space-y-6 max-w-7xl">
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbLink><Link href={route('classes.index')}>Daftar Kelas</Link></BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbLink><Link href={route('courses.show', labClass.course?.id)}>{labClass.course?.name}</Link></BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage className="font-medium text-sky-600">Kelas {`${labClass.name}`}</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Main Content: Modules & Assignments */}
-                    <div className="md:col-span-2 space-y-6">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-800">Modul Pembelajaran</h3>
-                                <p className="text-xs text-gray-500">Modul diwarisi dari Silabus Mata Kuliah {labClass.course?.name}</p>
-                            </div>
-                            <Link href={route('courses.show', labClass.course?.id)}>
-                                <Button variant="outline" size="sm">Kelola Silabus Modul</Button>
-                            </Link>
+                        {/* Main Content: Modules & Assignments */}
+                        <div className="md:col-span-2 space-y-6">
+                            <Title
+                                title={`${labClass.course?.name} - Kelas ${labClass.name}`}
+                                subtitle={labClass.aslab ? `Asisten: ${labClass.aslab?.name}` : 'Belum ada Asisten'}
+                            />
+
+                            {labClass.course?.modules?.map((mod, index) => (
+                                <Card key={mod.id}>
+                                    <CardHeader className="bg-gray-50 border-b py-3 px-4 flex flex-row items-center justify-between space-y-0">
+                                        <CardTitle className="text-base font-semibold">
+                                            Modul {mod.order || index + 1}: {mod.title}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="p-4">
+                                        {mod.assignments && mod.assignments.length > 0 ? (
+                                            <div className="space-y-3 mb-4">
+                                                {mod.assignments.map((assign) => {
+                                                    const sched = assign.class_schedules?.[0];
+                                                    const isPublished = sched?.is_published;
+                                                    const startTime = sched?.start_time;
+                                                    const startDate = startTime ? new Date(typeof startTime === 'string' ? startTime.replace(' ', 'T') : startTime) : null;
+                                                    const isFutureSchedule = Boolean(isPublished && startDate && !isNaN(startDate.getTime()) && startDate > new Date());
+                                                    const isStarted = Boolean(isPublished && !isFutureSchedule);
+
+                                                    return (
+                                                        <div key={assign.id} className="p-3 border rounded-md hover:bg-slate-50/80 transition space-y-2 bg-white">
+                                                            <div className="flex flex-col justify-between gap-6">
+                                                                <div>
+                                                                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                                                                        <Link href={route('assignments.show', assign.id)} className="font-semibold text-slate-800 hover:text-sky-600 hover:underline">
+                                                                            {assign.title}
+                                                                        </Link>
+                                                                        {isPublished ? (
+                                                                            isFutureSchedule ? (
+                                                                                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-[11px] gap-1">
+                                                                                    Dimulai {formatDateWIB(startDate)}
+                                                                                </Badge>
+                                                                            ) : (
+                                                                                <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] gap-1 hover:bg-emerald-50 font-normal">
+                                                                                    Aktif
+                                                                                </Badge>
+                                                                            )
+                                                                        ) : (
+                                                                            <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-200 text-[11px] gap-1">
+                                                                                Draft
+                                                                            </Badge>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="text-xs text-slate-500 mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+                                                                        <span>Tenggat: <strong>{formatDateWIB(sched?.deadline || assign.deadline)}</strong></span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
+                                                                    {isStarted ? (
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outline"
+                                                                            className="w-full border-red-500 hover:bg-white hover:text-red-600 text-red-600 text-xs font-semibold h-8 px-2.5 gap-1.5 shadow-xs"
+                                                                            onClick={() => handleDisableAssignment(assign)}
+                                                                            title="Nonaktifkan Tugas untuk Kelas Ini"
+                                                                        >
+                                                                            <span>Nonaktifkan Tugas</span>
+                                                                        </Button>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Button
+                                                                                size="sm"
+                                                                                className="w-full bg-sky-500 hover:bg-sky-600 text-white text-xs h-8 px-2.5 gap-1.5 shadow-xs"
+                                                                                onClick={() => handleInstantRelease(assign)}
+                                                                                title="Rilis Tugas Sekarang untuk Kelas Ini"
+                                                                            >
+                                                                                <Play className="w-3.5 h-3.5 fill-white" />
+                                                                                <span>Mulai Sekarang</span>
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="outline"
+                                                                                size="sm"
+                                                                                className="text-xs h-8 px-2.5 gap-1.5 text-slate-700 border-slate-200 hover:bg-slate-50"
+                                                                                onClick={() => openScheduleModal(assign)}
+                                                                            >
+                                                                                <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                                                                                <span>Jadwalkan</span>
+                                                                            </Button>
+                                                                        </>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <div className="text-sm text-gray-500 italic mb-4">Belum ada tugas di modul ini untuk kelas ini.</div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            ))}
+
+                            {(!labClass.course?.modules || labClass.course.modules.length === 0) && (
+                                <div className="text-center py-10 bg-white rounded-lg border border-dashed border-gray-300">
+                                    <p className="text-gray-500 mb-2">Belum ada modul praktikum di silabus mata kuliah ini.</p>
+                                    <Link href={route('courses.show', labClass.course?.id)}>
+                                        <Button variant="outline">Tambah Modul ke Mata Kuliah</Button>
+                                    </Link>
+                                </div>
+                            )}
                         </div>
 
-                        {labClass.course?.modules?.map((mod, index) => (
-                            <Card key={mod.id}>
-                                <CardHeader className="bg-gray-50 border-b py-3 px-4 flex flex-row items-center justify-between space-y-0">
-                                    <CardTitle className="text-base font-semibold">
-                                        Modul {mod.order || index + 1}: {mod.title}
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-4">
-                                    {mod.assignments && mod.assignments.length > 0 ? (
-                                        <div className="space-y-3 mb-4">
-                                            {mod.assignments.map((assign) => (
-                                                <div key={assign.id} className="flex justify-between items-center p-3 border rounded-md hover:bg-gray-50 transition">
-                                                    <div>
-                                                        <Link href={route('assignments.show', assign.id)} className="font-medium text-sky-600 hover:underline block">
-                                                            {assign.title}
-                                                        </Link>
-                                                        <span className="text-xs text-gray-500">Tenggat: {new Date(assign.deadline).toLocaleString()} • Max: {assign.max_score}</span>
-                                                    </div>
-                                                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-800" onClick={() => deleteAssignment(assign)}>Hapus</Button>
-                                                </div>
-                                            ))}
+                        {/* Sidebar: Students */}
+                        <div>
+                            <Card className="sticky top-6">
+                                <CardHeader className="pb-3 px-4 border-b">
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex gap-2 items-center">
+                                            <UsersIcon className="w-4 h-4" />
+                                            <CardTitle className="text-md font-semibold">Praktikan</CardTitle>
                                         </div>
-                                    ) : (
-                                        <div className="text-sm text-gray-500 italic mb-4">Belum ada tugas di modul ini untuk kelas ini.</div>
-                                    )}
-
-                                    <Button variant="outline" size="sm" className="w-full border-dashed" onClick={() => openAssignmentCreate(mod.id)}>
-                                        + Tambah Tugas
-                                    </Button>
+                                        <Badge className='bg-sky-500 hover:'>{labClass.students?.length || 0}</Badge>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-0">
+                                    <div className="max-h-[500px] overflow-y-auto">
+                                        {labClass.students?.map((student) => (
+                                            <div key={student.id} className="flex justify-between items-center p-3 border-b hover:bg-gray-50">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-8 h-8 rounded-full bg-sky-100 text-sky-700 font-semibold text-xs flex items-center justify-center shrink-0 border border-sky-200 uppercase">
+                                                        {getInitials(student.name)}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-medium text-sm">{student.name}</div>
+                                                        <div className="text-xs text-gray-500">{student.nim}</div>
+                                                    </div>
+                                                </div>
+                                                <button onClick={() => removeStudent(student)} className="text-gray-400 hover:text-red-600 p-1" title="Keluarkan">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {(!labClass.students || labClass.students.length === 0) && (
+                                            <div className="p-4 text-center text-sm text-gray-500">
+                                                Belum ada mahasiswa.
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-3 border-t bg-gray-50">
+                                        <Button onClick={() => setShowEnrollDialog(true)} className="w-full bg-white hover:bg-white border text-sm font-medium border-sky-600 text-sky-600" >Tambah Praktikan</Button>
+                                    </div>
                                 </CardContent>
                             </Card>
-                        ))}
-
-                        {(!labClass.course?.modules || labClass.course.modules.length === 0) && (
-                            <div className="text-center py-10 bg-white rounded-lg border border-dashed border-gray-300">
-                                <p className="text-gray-500 mb-2">Belum ada modul praktikum di silabus mata kuliah ini.</p>
-                                <Link href={route('courses.show', labClass.course?.id)}>
-                                    <Button variant="outline">Tambah Modul ke Mata Kuliah</Button>
-                                </Link>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Sidebar: Students */}
-                    <div>
-                        <Card className="sticky top-6">
-                            <CardHeader className="pb-3 border-b">
-                                <div className="flex justify-between items-center">
-                                    <CardTitle className="text-lg">Daftar Mahasiswa</CardTitle>
-                                    <Badge>{labClass.students?.length || 0}</Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="max-h-[500px] overflow-y-auto">
-                                    {labClass.students?.map((student) => (
-                                        <div key={student.id} className="flex justify-between items-center p-3 border-b hover:bg-gray-50">
-                                            <div>
-                                                <div className="font-medium text-sm">{student.name}</div>
-                                                <div className="text-xs text-gray-500">{student.nim} • {student.email}</div>
-                                            </div>
-                                            <button onClick={() => removeStudent(student)} className="text-gray-400 hover:text-red-600 p-1" title="Keluarkan">
-                                                &times;
-                                            </button>
-                                        </div>
-                                    ))}
-                                    {(!labClass.students || labClass.students.length === 0) && (
-                                        <div className="p-4 text-center text-sm text-gray-500">
-                                            Belum ada mahasiswa.
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="p-3 border-t bg-gray-50">
-                                    <Button onClick={() => setShowEnrollDialog(true)} className="w-full">Tambahkan Mahasiswa</Button>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-            {/* Module Dialog */}
-            <Dialog open={showModuleDialog} onOpenChange={setShowModuleDialog}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>{editingModule ? 'Edit Modul' : 'Tambah Modul'}</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={submitModule} className="space-y-4 pt-2">
-                        <div>
-                            <label className="text-sm font-medium block mb-1">Judul Modul</label>
-                            <input
-                                value={moduleForm.data.title}
-                                onChange={(e) => moduleForm.setData('title', e.target.value)}
-                                type="text"
-                                className="w-full rounded-md border px-3 py-2 text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium block mb-1">Urutan (Opsional)</label>
-                            <input
-                                value={moduleForm.data.order}
-                                onChange={(e) => moduleForm.setData('order', e.target.value)}
-                                type="number"
-                                className="w-full rounded-md border px-3 py-2 text-sm"
-                            />
-                        </div>
-                        <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setShowModuleDialog(false)}>Batal</Button>
-                            <Button type="submit" disabled={moduleForm.processing}>Simpan</Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
-
-            {/* Assignment Dialog */}
-            <Dialog open={showAssignmentDialog} onOpenChange={setShowAssignmentDialog}>
-                <DialogContent className="sm:max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle>Tambah Tugas</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={submitAssignment} className="space-y-4 pt-2">
-                        <div>
-                            <label className="text-sm font-medium block mb-1">Judul Tugas</label>
-                            <input
-                                value={assignmentForm.data.title}
-                                onChange={(e) => assignmentForm.setData('title', e.target.value)}
-                                type="text"
-                                className="w-full rounded-md border px-3 py-2 text-sm"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium block mb-1">Deskripsi</label>
-                            <textarea
-                                value={assignmentForm.data.description}
-                                onChange={(e) => assignmentForm.setData('description', e.target.value)}
-                                rows={3}
-                                className="w-full rounded-md border px-3 py-2 text-sm"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-medium block mb-1">Tenggat Waktu (Deadline)</label>
-                                <input
-                                    value={assignmentForm.data.deadline}
-                                    onChange={(e) => assignmentForm.setData('deadline', e.target.value)}
-                                    type="datetime-local"
-                                    className="w-full rounded-md border px-3 py-2 text-sm"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium block mb-1">Nilai Maksimal</label>
-                                <input
-                                    value={assignmentForm.data.max_score}
-                                    onChange={(e) => assignmentForm.setData('max_score', parseInt(e.target.value, 10) || 100)}
-                                    type="number"
-                                    min="1"
-                                    max="1000"
-                                    className="w-full rounded-md border px-3 py-2 text-sm"
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium block mb-1">Metode Penilaian</label>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger
-                                    render={
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            className="w-full justify-between font-normal border-slate-200 text-left bg-white"
-                                        >
-                                            <span className="text-slate-800 font-medium">
-                                                {assignmentForm.data.grading_method === 'rubric' ? 'Rubrik (Rubric)' : 'Skor Langsung (Score)'}
-                                            </span>
-                                            <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
-                                        </Button>
-                                    }
-                                />
-                                <DropdownMenuContent className="w-[var(--anchor-width)] max-h-60 overflow-y-auto bg-white border border-slate-200 shadow-md p-1 z-[60] pointer-events-auto">
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuItem
-                                            onClick={() => assignmentForm.setData('grading_method', 'score')}
-                                            className={`cursor-pointer px-3 py-2 text-sm rounded-md transition-colors ${assignmentForm.data.grading_method === 'score'
-                                                    ? 'bg-sky-50 text-sky-700 font-medium'
-                                                    : 'hover:bg-slate-100 text-slate-700'
-                                                }`}
-                                        >
-                                            Skor Langsung (Score)
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            onClick={() => assignmentForm.setData('grading_method', 'rubric')}
-                                            className={`cursor-pointer px-3 py-2 text-sm rounded-md transition-colors ${assignmentForm.data.grading_method === 'rubric'
-                                                    ? 'bg-sky-50 text-sky-700 font-medium'
-                                                    : 'hover:bg-slate-100 text-slate-700'
-                                                }`}
-                                        >
-                                            Rubrik (Rubric)
-                                        </DropdownMenuItem>
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                        <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setShowAssignmentDialog(false)}>Batal</Button>
-                            <Button type="submit" disabled={assignmentForm.processing}>Buat Tugas</Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
 
             {/* Enroll Dialog */}
             <Dialog open={showEnrollDialog} onOpenChange={setShowEnrollDialog}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Tambahkan Mahasiswa</DialogTitle>
+                        <DialogTitle>Tambah Praktikan</DialogTitle>
                         <DialogDescription>Pilih satu atau lebih mahasiswa untuk dimasukkan ke kelas ini.</DialogDescription>
                     </DialogHeader>
                     <form onSubmit={submitEnroll} className="space-y-4 pt-2">
@@ -432,7 +454,7 @@ export default function ClassesShow({
                                         id={`s_${student.id}`}
                                         checked={enrollForm.data.student_ids.includes(student.id)}
                                         onChange={() => toggleStudentSelection(student.id)}
-                                        className="rounded border-gray-300 text-sky-600 focus:ring-sky-500"
+                                        className="rounded border-gray-300 text-sky-500 focus:ring-transparent"
                                     />
                                     <label htmlFor={`s_${student.id}`} className="text-sm font-medium leading-none cursor-pointer">
                                         {student.nim} - {student.name}
@@ -447,7 +469,59 @@ export default function ClassesShow({
                         </div>
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setShowEnrollDialog(false)}>Batal</Button>
-                            <Button type="submit" disabled={enrollForm.processing || enrollForm.data.student_ids.length === 0}>Tambahkan</Button>
+                            <Button type="submit" className='bg-sky-500 hover:bg-sky-600' disabled={enrollForm.processing || enrollForm.data.student_ids.length === 0}>Tambahkan</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Schedule & Release Dialog */}
+            <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
+                <DialogContent className="sm:max-w-md bg-white">
+                    <DialogHeader>
+                        <DialogTitle>Atur Jadwal Rilis Tugas</DialogTitle>
+                        <DialogDescription>
+                            Pengaturan jadwal rilis dan tenggat waktu khusus untuk kelas {labClass.name}.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={submitSchedule} className="space-y-4">
+                        <div>
+                            <label className="text-sm font-medium block mb-1">Waktu Mulai</label>
+                            <input
+                                value={scheduleForm.data.start_time}
+                                onChange={(e) => scheduleForm.setData('start_time', e.target.value)}
+                                type="datetime-local"
+                                className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500"
+                            />
+                            <p className="text-xs text-slate-500 mt-1">Biarkan kosong jika ingin dibuka langsung saat dipublikasikan.</p>
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-medium block mb-1">Tenggat Waktu</label>
+                            <input
+                                value={scheduleForm.data.deadline}
+                                onChange={(e) => scheduleForm.setData('deadline', e.target.value)}
+                                type="datetime-local"
+                                className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500"
+                            />
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                id="is_published_chk"
+                                checked={scheduleForm.data.is_published}
+                                onChange={(e) => scheduleForm.setData('is_published', e.target.checked)}
+                                className="rounded border-gray-300 text-sky-600 focus:ring-transparent h-4 w-4"
+                            />
+                            <label htmlFor="is_published_chk" className="outline-none text-sm font-medium leading-none cursor-pointer text-slate-800">
+                                Publikasikan
+                            </label>
+                        </div>
+
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setShowScheduleDialog(false)}>Batal</Button>
+                            <Button type="submit" disabled={scheduleForm.processing} className="bg-sky-600 hover:bg-sky-700 text-white">Simpan Jadwal</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>

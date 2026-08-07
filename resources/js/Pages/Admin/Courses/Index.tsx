@@ -8,7 +8,7 @@ import DataTable from '@/Components/DataTable';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Sidebar } from '@/Components/Sidebar';
 import { getAdminSidebarItems } from '@/Components/Sidebar/adminNavigation';
-import { Plus, SquarePen, Trash2, BookOpenText } from 'lucide-react';
+import { Plus, SquarePen, Trash2, Eye } from 'lucide-react';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -160,7 +160,7 @@ export default function CoursesIndex({ courses = [] }: { courses?: Course[] }) {
                         className='p-0 h-auto border-none shadow-none hover:bg-transparent'
                         onClick={() => openModule(row.original)}
                     >
-                        <BookOpenText className='text-gray-500' />
+                        <Eye className='text-gray-500' />
                     </Button>
                 </div >
             ),

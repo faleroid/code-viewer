@@ -189,11 +189,11 @@ export default function ClassesIndex({
                     className="flex items-center gap-1 cursor-pointer select-none"
                     onClick={() => column.toggleSorting()}
                 >
-                    Jumlah Mhs
+                    Praktikan
                     {column.getIsSorted() ? (column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
                 </div>
             ),
-            cell: ({ row }) => `${row.original.students_count} mahasiswa`,
+            cell: ({ row }) => `${row.original.students_count} praktikan`,
         },
         {
             accessorKey: 'show_action',
@@ -295,7 +295,7 @@ export default function ClassesIndex({
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <Title title="Daftar Seluruh Kelas" subtitle="Ringkasan dan Informasi Kelas Praktikum" />
 
-                        <Button onClick={openCreate} className="bg-sky-600 hover:bg-sky-700 text-white gap-1.5 shadow-sm self-start sm:self-auto">
+                        <Button onClick={openCreate} className="bg-sky-500 hover:bg-sky-600 text-white gap-1.5 shadow-sm self-start sm:self-auto">
                             <Plus className="w-4 h-4" />
                             <span>Tambah Kelas</span>
                         </Button>

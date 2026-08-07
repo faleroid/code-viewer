@@ -32,6 +32,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/classes/{class}/enroll', [LabClassController::class, 'enrollStudents'])->name('classes.enroll');
         Route::delete('/classes/{class}/students/{student}', [LabClassController::class, 'removeStudent'])->name('classes.removeStudent');
         Route::get('/classes/{class}/export-grades', [\App\Http\Controllers\ExportController::class, 'exportGrades'])->name('classes.export-grades');
+        Route::post('/classes/{class}/assignments/{assignment}/schedule', [LabClassController::class, 'updateAssignmentSchedule'])->name('classes.assignments.schedule');
+        Route::post('/classes/{class}/assignments/{assignment}/instant-release', [LabClassController::class, 'instantReleaseAssignment'])->name('classes.assignments.instant-release');
 
         Route::post('/modules', [ModuleController::class, 'store'])->name('modules.store');
         Route::put('/modules/{module}', [ModuleController::class, 'update'])->name('modules.update');

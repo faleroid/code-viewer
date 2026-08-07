@@ -27,4 +27,9 @@ class LabClass extends Model
     {
         return $this->hasMany(Module::class);
     }
+
+    public function assignmentSchedules()
+    {
+        return $this->hasMany(ClassAssignmentSchedule::class);
+    }
 }

@@ -26,4 +26,9 @@ class Assignment extends Model
     {
         return $this->hasMany(RubricComponent::class);
     }
+
+    public function classSchedules()
+    {
+        return $this->hasMany(ClassAssignmentSchedule::class);
+    }
 }

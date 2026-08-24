@@ -222,7 +222,7 @@ export default function AdminDiscussionsIndex({ discussions = [] }: { discussion
 
             <div className="flex min-h-[calc(100vh-4rem)] bg-slate-50/50">
                 {/* Sidebar Admin */}
-                <div className="w-64 shrink-0 hidden lg:block border-r border-slate-200/80 bg-white">
+                <div className="w-64 shrink-0 hidden lg:block border-r border-slate-200/80 bg-white sticky top-16 h-[calc(100vh-4rem)] self-start">
                     <Sidebar
                         items={getAdminSidebarItems()}
                         activeId="discussions"

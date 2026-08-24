@@ -19,8 +19,10 @@ class DiscussionController extends Controller
         })->pluck('id');
 
         $discussions = InlineComment::whereNull('parent_id')
-            ->whereHas('submissionFile.submission.assignment.module', function ($query) use ($managedClassIds) {
-                $query->whereIn('lab_class_id', $managedClassIds);
+            ->when($user->role === 'aslab', function ($q) use ($managedClassIds) {
+                $q->whereHas('submissionFile.submission.assignment.classSchedules', function ($query) use ($managedClassIds) {
+                    $query->whereIn('lab_class_id', $managedClassIds);
+                });
             })
             ->with([
                 'user:id,name,email,role',
